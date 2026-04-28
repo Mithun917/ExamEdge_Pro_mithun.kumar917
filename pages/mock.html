@@ -1,0 +1,377 @@
+<!-- pages/mock.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Simulation</div>
+    <h1 class="page-header__title">Mock Exam</h1>
+    <p class="page-header__subtitle">Full-length timed simulation — just like the real thing.</p>
+  </div>
+
+  <!-- Setup Panel -->
+  <div id="mock-setup" class="animate-fade-in-up delay-1">
+    <div class="grid grid-cols-2" style="max-width: 760px; gap: var(--space-5)">
+
+      <div class="card">
+        <h3 class="card__title" style="margin-bottom:var(--space-5)">Exam Configuration</h3>
+        <div class="flex flex-col gap-4">
+
+          <div class="form-group">
+            <label class="form-label" for="mock-type">Exam Type</label>
+            <select class="form-select" id="mock-type">
+              <option value="general">General Aptitude</option>
+              <option value="upsc">UPSC Prelims</option>
+              <option value="ssc">SSC CGL</option>
+              <option value="banking">Banking PO</option>
+              <option value="cat">CAT</option>
+              <option value="jee">JEE Mains</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="mock-duration">Duration</label>
+            <select class="form-select" id="mock-duration">
+              <option value="30">30 Minutes</option>
+              <option value="60" selected>60 Minutes</option>
+              <option value="90">90 Minutes</option>
+              <option value="120">120 Minutes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="mock-questions">Number of Questions</label>
+            <select class="form-select" id="mock-questions">
+              <option value="20">20 Questions</option>
+              <option value="50" selected>50 Questions</option>
+              <option value="100">100 Questions</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="mock-negative">Negative Marking</label>
+            <select class="form-select" id="mock-negative">
+              <option value="0">None</option>
+              <option value="0.25">-0.25 per wrong</option>
+              <option value="0.33">-0.33 per wrong</option>
+              <option value="1">-1 per wrong</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="start-mock-btn" style="margin-top:var(--space-2)">
+            🚀 Begin Mock Exam
+          </button>
+        </div>
+      </div>
+
+      <!-- Info card -->
+      <div class="flex flex-col gap-4">
+        <div class="card" style="background:rgba(108,99,255,0.07); border-color:rgba(108,99,255,0.2)">
+          <div style="font-size:1.5rem; margin-bottom:var(--space-3)">📋</div>
+          <h4 style="margin-bottom:var(--space-2)">Before You Begin</h4>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:var(--space-2)">
+            <li style="font-size:0.875rem; color:var(--clr-text-secondary)">⏱ Timer starts immediately</li>
+            <li style="font-size:0.875rem; color:var(--clr-text-secondary)">🔀 Navigate questions freely</li>
+            <li style="font-size:0.875rem; color:var(--clr-text-secondary)">⚠️ Auto-submits when time expires</li>
+            <li style="font-size:0.875rem; color:var(--clr-text-secondary)">📊 Detailed analysis after submission</li>
+          </ul>
+        </div>
+
+        <!-- Past exam history -->
+        <div class="card">
+          <div class="card__title" style="margin-bottom:var(--space-4)">Recent Attempts</div>
+          <div id="mock-history-list">
+            <p style="font-size:0.875rem; color:var(--clr-text-muted); text-align:center; padding:var(--space-4) 0">
+              No attempts yet. Take your first mock exam!
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Active Exam -->
+  <div id="mock-exam" class="hidden">
+
+    <!-- Exam Header Bar -->
+    <div class="card animate-fade-in" style="margin-bottom:var(--space-5); padding: var(--space-3) var(--space-5)">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <span style="font-size:0.875rem; color:var(--clr-text-muted)">Question</span>
+          <span style="font-weight:700; font-family:var(--font-mono)" id="mock-q-num">1</span>
+          <span style="color:var(--clr-text-muted)">/</span>
+          <span style="font-family:var(--font-mono); color:var(--clr-text-muted)" id="mock-q-total">50</span>
+          <span id="mock-answered-count" class="badge badge-success">0 answered</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="timer-display" id="mock-timer">60:00</div>
+          <button class="btn btn-danger btn-sm" id="mock-submit-btn">Submit Exam</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column layout: question + navigator -->
+    <div class="grid grid-cols-2" style="gap:var(--space-5); align-items:start">
+
+      <!-- Question -->
+      <div>
+        <div class="question-card animate-fade-in" id="mock-question-card">
+          <div class="question-card__meta">
+            <span class="badge badge-neutral" id="mock-q-subject">General</span>
+            <span class="badge" id="mock-q-diff">Medium</span>
+            <span id="mock-q-flagged" class="badge badge-warning hidden">🚩 Flagged</span>
+          </div>
+          <div class="question-card__body" id="mock-q-text">Loading…</div>
+          <div class="options-list" id="mock-options-list"></div>
+        </div>
+
+        <div class="flex justify-between items-center" style="margin-top:var(--space-4)">
+          <button class="btn btn-ghost btn-sm" id="mock-flag-btn">🚩 Flag for Review</button>
+          <div class="flex gap-3">
+            <button class="btn btn-secondary btn-sm" id="mock-prev-btn">← Prev</button>
+            <button class="btn btn-primary btn-sm" id="mock-next-btn">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Navigator -->
+      <div class="card" style="position:sticky; top:80px">
+        <div class="card__title" style="margin-bottom:var(--space-4)">Question Navigator</div>
+        <div id="mock-navigator" style="display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-bottom:var(--space-4)">
+          <!-- Buttons injected by JS -->
+        </div>
+        <div class="flex flex-wrap gap-3" style="font-size:0.75rem; color:var(--clr-text-muted)">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--clr-accent-2);margin-right:4px;vertical-align:middle"></span>Answered</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--clr-accent-4);margin-right:4px;vertical-align:middle"></span>Flagged</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--clr-surface-3);margin-right:4px;vertical-align:middle"></span>Not visited</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="mock-results" class="hidden" style="max-width:680px">
+    <div class="card animate-fade-in-up">
+      <div style="text-align:center; padding:var(--space-5) 0 var(--space-6)">
+        <div style="font-size:4rem; margin-bottom:var(--space-3)" id="mock-result-emoji">🎓</div>
+        <h2 style="margin-bottom:var(--space-2)" id="mock-result-title">Exam Submitted</h2>
+        <div style="font-size:4rem; font-weight:800; font-family:var(--font-display); color:var(--clr-accent); line-height:1; margin-bottom:var(--space-3)" id="mock-result-score">—</div>
+        <p class="text-muted" id="mock-result-summary">—</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid grid-cols-3" style="text-align:center; gap:var(--space-4); margin:var(--space-5) 0">
+        <div>
+          <div style="font-size:1.5rem; font-weight:800; font-family:var(--font-display); color:var(--clr-accent-2)" id="res-correct">—</div>
+          <div style="font-size:0.75rem; color:var(--clr-text-muted)">Correct</div>
+        </div>
+        <div>
+          <div style="font-size:1.5rem; font-weight:800; font-family:var(--font-display); color:var(--clr-accent-3)" id="res-wrong">—</div>
+          <div style="font-size:0.75rem; color:var(--clr-text-muted)">Wrong</div>
+        </div>
+        <div>
+          <div style="font-size:1.5rem; font-weight:800; font-family:var(--font-display); color:var(--clr-text-muted)" id="res-unattempted">—</div>
+          <div style="font-size:0.75rem; color:var(--clr-text-muted)">Unattempted</div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 justify-center">
+        <button class="btn btn-secondary" id="mock-retry-btn">Try Again</button>
+        <a href="#dashboard" class="btn btn-primary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { startMockExam, recordAnswer, goToQuestion, submitMockExam, getRemainingTime } from '../js/modules/mock.js';
+  import { state } from '../js/state.js';
+
+  const DIFF_CLASS = { easy: 'badge-success', medium: 'badge-warning', hard: 'badge-danger' };
+
+  // Render recent exam history
+  function renderHistory() {
+    const history = state.get('analytics').examHistory?.filter(e => e.type === 'mock') ?? [];
+    const el = document.getElementById('mock-history-list');
+    if (!el || history.length === 0) return;
+    el.innerHTML = history.slice(-3).reverse().map(e => `
+      <div class="flex justify-between items-center" style="padding:var(--space-2) 0; border-bottom:1px solid var(--clr-border-soft)">
+        <div style="font-size:0.8125rem; color:var(--clr-text-secondary)">${new Date(e.date).toLocaleDateString()}</div>
+        <div class="flex gap-3 items-center">
+          <span style="font-family:var(--font-mono); font-weight:700">${e.score}%</span>
+          <span class="badge ${e.passed ? 'badge-success' : 'badge-danger'}">${e.passed ? 'Pass' : 'Fail'}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+  renderHistory();
+
+  // MOCK question bank (same pool as practice for now)
+  const QUESTIONS = Array.from({ length: 20 }, (_, i) => ({
+    id: `mq${i}`, subject: ['math','general','science','reasoning'][i % 4],
+    difficulty: ['easy','medium','hard'][i % 3],
+    text: `Sample Mock Question ${i + 1}: What is the correct answer to this question?`,
+    options: ['Option A', 'Option B', 'Option C', 'Option D'],
+    answer: i % 4,
+  }));
+
+  let session = null;
+  let flagged = new Set();
+
+  document.getElementById('start-mock-btn')?.addEventListener('click', () => {
+    const duration  = parseInt(document.getElementById('mock-duration')?.value) || 60;
+    const examId    = document.getElementById('mock-type')?.value || 'general';
+    const qCount    = parseInt(document.getElementById('mock-questions')?.value) || 20;
+
+    session = startMockExam({ examId, questions: QUESTIONS.slice(0, Math.min(qCount, QUESTIONS.length)), durationMinutes: duration });
+
+    document.getElementById('mock-setup').classList.add('hidden');
+    document.getElementById('mock-exam').classList.remove('hidden');
+    document.getElementById('mock-q-total').textContent = session.questions.length;
+
+    buildNavigator();
+    renderQuestion(0);
+  });
+
+  // Timer tick
+  document.addEventListener('timerTick', () => {
+    const el = document.getElementById('mock-timer');
+    if (!el) return;
+    const rem = state.get('mockSession')?.remainingSeconds ?? 0;
+    el.textContent = getRemainingTime();
+    el.className = rem <= 60 ? 'timer-display danger' : rem <= 300 ? 'timer-display warning' : 'timer-display';
+  });
+
+  function buildNavigator() {
+    const nav = document.getElementById('mock-navigator');
+    if (!nav) return;
+    nav.innerHTML = session.questions.map((_, i) => `
+      <button class="btn btn-ghost btn-xs nav-q-btn" id="nav-btn-${i}"
+        style="border:1px solid var(--clr-border); font-family:var(--font-mono); font-size:0.7rem"
+        data-index="${i}">${i + 1}</button>
+    `).join('');
+    nav.querySelectorAll('.nav-q-btn').forEach(btn => {
+      btn.addEventListener('click', () => renderQuestion(parseInt(btn.dataset.index)));
+    });
+  }
+
+  function renderQuestion(index) {
+    if (!session) return;
+    const q = session.questions[index];
+    if (!q) return;
+
+    // Update state index
+    goToQuestion(index);
+    const currentSession = state.get('mockSession');
+
+    document.getElementById('mock-q-num').textContent  = index + 1;
+    document.getElementById('mock-q-text').textContent = q.text;
+    document.getElementById('mock-q-subject').textContent = q.subject;
+    const diffBadge = document.getElementById('mock-q-diff');
+    diffBadge.textContent = q.difficulty;
+    diffBadge.className   = `badge ${DIFF_CLASS[q.difficulty] ?? 'badge-neutral'}`;
+
+    const flagEl = document.getElementById('mock-q-flagged');
+    if (flagEl) flagEl.classList.toggle('hidden', !flagged.has(q.id));
+
+    // Options
+    const saved   = currentSession.answers[q.id];
+    const optList = document.getElementById('mock-options-list');
+    optList.innerHTML = q.options.map((opt, i) => `
+      <div class="option-item ${saved === i ? 'selected' : ''}" data-index="${i}" tabindex="0" role="button">
+        <span class="option-label">${['A','B','C','D'][i]}</span>
+        <span>${opt}</span>
+      </div>
+    `).join('');
+
+    optList.querySelectorAll('.option-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = parseInt(item.dataset.index);
+        recordAnswer(q.id, idx);
+        session = state.get('mockSession');
+        // Update visuals
+        optList.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+        item.classList.add('selected');
+        updateNavigatorBtn(index);
+        updateAnsweredCount();
+      });
+    });
+
+    updateNavigatorBtn(index);
+    document.getElementById('mock-prev-btn').disabled = index === 0;
+    document.getElementById('mock-next-btn').disabled = index === session.questions.length - 1;
+  }
+
+  function updateNavigatorBtn(index) {
+    const s   = state.get('mockSession');
+    const q   = s.questions[index];
+    const btn = document.getElementById(`nav-btn-${index}`);
+    if (!btn || !q) return;
+    const answered = s.answers[q.id] !== undefined;
+    const isFlagged = flagged.has(q.id);
+    btn.style.background = isFlagged ? 'rgba(255,209,102,0.25)' : answered ? 'rgba(0,229,160,0.2)' : '';
+    btn.style.borderColor = isFlagged ? 'var(--clr-accent-4)' : answered ? 'var(--clr-accent-2)' : 'var(--clr-border)';
+  }
+
+  function updateAnsweredCount() {
+    const s   = state.get('mockSession');
+    const cnt = Object.keys(s.answers ?? {}).length;
+    const el  = document.getElementById('mock-answered-count');
+    if (el) el.textContent = `${cnt} answered`;
+  }
+
+  document.getElementById('mock-prev-btn')?.addEventListener('click', () => {
+    const idx = state.get('mockSession')?.currentIndex ?? 0;
+    if (idx > 0) renderQuestion(idx - 1);
+  });
+  document.getElementById('mock-next-btn')?.addEventListener('click', () => {
+    const s = state.get('mockSession');
+    if (s && s.currentIndex < s.questions.length - 1) renderQuestion(s.currentIndex + 1);
+  });
+
+  document.getElementById('mock-flag-btn')?.addEventListener('click', () => {
+    const s = state.get('mockSession');
+    const q = s?.questions[s.currentIndex];
+    if (!q) return;
+    flagged.has(q.id) ? flagged.delete(q.id) : flagged.add(q.id);
+    renderQuestion(s.currentIndex);
+  });
+
+  document.getElementById('mock-submit-btn')?.addEventListener('click', () => {
+    if (!confirm('Are you sure you want to submit the exam?')) return;
+    showResults();
+  });
+
+  document.addEventListener('mockEnded', () => showResults());
+
+  function showResults() {
+    const result = submitMockExam();
+    if (!result) return;
+    document.getElementById('mock-exam').classList.add('hidden');
+    document.getElementById('mock-results').classList.remove('hidden');
+
+    const s = state.get('mockSession');
+    const total       = s.questions.length;
+    const correct     = result.correct;
+    const wrong       = Object.values(s.answers ?? {}).length - correct;
+    const unattempted = total - Object.values(s.answers ?? {}).length;
+
+    document.getElementById('mock-result-emoji').textContent = result.passed ? '🏆' : '📚';
+    document.getElementById('mock-result-title').textContent = result.passed ? 'Exam Passed!' : 'Better Luck Next Time';
+    document.getElementById('mock-result-score').textContent = `${result.score}%`;
+    document.getElementById('mock-result-summary').textContent =
+      `${correct} correct · ${wrong} wrong · ${unattempted} unattempted`;
+    document.getElementById('res-correct').textContent     = correct;
+    document.getElementById('res-wrong').textContent       = wrong;
+    document.getElementById('res-unattempted').textContent = unattempted;
+
+    renderHistory();
+  }
+
+  document.getElementById('mock-retry-btn')?.addEventListener('click', () => {
+    document.getElementById('mock-results').classList.add('hidden');
+    document.getElementById('mock-setup').classList.remove('hidden');
+  });
+</script>

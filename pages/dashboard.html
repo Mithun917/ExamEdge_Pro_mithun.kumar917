@@ -1,0 +1,182 @@
+<!-- pages/dashboard.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Overview</div>
+    <h1 class="page-header__title" id="dash-greeting">Good morning! 👋</h1>
+    <p class="page-header__subtitle">Here's your study snapshot for today.</p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-4 animate-fade-in-up delay-1" style="margin-bottom: var(--space-7)">
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background:rgba(108,99,255,0.15); color:var(--clr-accent)">⚡</div>
+      <div class="stat-card__value" id="dash-xp">0</div>
+      <div class="stat-card__label">Total XP Earned</div>
+      <div class="stat-card__change positive" id="dash-level">Lv. 1</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background:rgba(0,229,160,0.12); color:var(--clr-accent-2)">✅</div>
+      <div class="stat-card__value" id="dash-accuracy">—</div>
+      <div class="stat-card__label">Overall Accuracy</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background:rgba(255,107,107,0.12); color:var(--clr-accent-3)">🔥</div>
+      <div class="stat-card__value" id="dash-streak">0</div>
+      <div class="stat-card__label">Day Streak</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon" style="background:rgba(255,209,102,0.12); color:var(--clr-accent-4)">📚</div>
+      <div class="stat-card__value" id="dash-questions">0</div>
+      <div class="stat-card__label">Questions Answered</div>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="animate-fade-in-up delay-2" style="margin-bottom: var(--space-7)">
+    <h2 style="margin-bottom: var(--space-5)">Quick Start</h2>
+    <div class="grid grid-cols-3">
+
+      <a href="#practice" class="card card-hover" style="text-decoration:none; cursor:pointer">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">✏️</div>
+        <h3 class="card__title" style="margin-bottom:var(--space-2)">Practice Mode</h3>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          Drill questions by subject, difficulty, or topic at your own pace.
+        </p>
+        <div style="margin-top:var(--space-4)">
+          <span class="badge badge-accent">Start →</span>
+        </div>
+      </a>
+
+      <a href="#mock" class="card card-hover" style="text-decoration:none; cursor:pointer">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">⏱️</div>
+        <h3 class="card__title" style="margin-bottom:var(--space-2)">Mock Exam</h3>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          Full-length timed exam simulation to test your readiness.
+        </p>
+        <div style="margin-top:var(--space-4)">
+          <span class="badge badge-warning">Simulate →</span>
+        </div>
+      </a>
+
+      <a href="#leaderboard" class="card card-hover" style="text-decoration:none; cursor:pointer">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">🏆</div>
+        <h3 class="card__title" style="margin-bottom:var(--space-2)">Leaderboard</h3>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          See how you rank against other students on the platform.
+        </p>
+        <div style="margin-top:var(--space-4)">
+          <span class="badge badge-success">Compete →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Progress + Achievements row -->
+  <div class="grid grid-cols-2 animate-fade-in-up delay-3">
+
+    <!-- Level progress -->
+    <div class="card">
+      <div class="card__header">
+        <div>
+          <div class="card__title">Level Progress</div>
+          <div class="card__subtitle" id="dash-level-subtitle">Keep earning XP to level up</div>
+        </div>
+        <span class="badge badge-accent" id="dash-level-badge">Lv. 1</span>
+      </div>
+      <div class="xp-meter">
+        <div class="xp-meter__header">
+          <span style="font-size:0.75rem; color:var(--clr-text-muted)" id="dash-xp-floor">0 XP</span>
+          <span style="font-size:0.75rem; color:var(--clr-text-muted)" id="dash-xp-ceil">100 XP</span>
+        </div>
+        <div class="progress progress-lg">
+          <div class="progress__bar" id="dash-level-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Achievements -->
+    <div class="card">
+      <div class="card__header">
+        <div class="card__title">Recent Achievements</div>
+        <a href="#profile" class="btn btn-ghost btn-sm">View All</a>
+      </div>
+      <div id="dash-achievements-list">
+        <div class="empty-state" style="padding: var(--space-5) 0">
+          <div class="empty-state__icon">🏅</div>
+          <p class="empty-state__text">Complete challenges to earn achievements.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+  import { state }           from '../js/state.js';
+  import { getOverallAccuracy } from '../js/modules/analytics.js';
+  import { getLevelProgress }   from '../js/modules/xp.js';
+  import { getAchievementsWithStatus } from '../js/modules/achievements.js';
+  import { formatXP, formatNumber } from '../js/utils.js';
+
+  function renderDashboard() {
+    const user      = state.get('user');
+    const xp        = state.get('xp');
+    const streak    = state.get('streak');
+    const analytics = state.get('analytics');
+    const accuracy  = getOverallAccuracy();
+    const lp        = getLevelProgress();
+
+    // Greeting
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const greetEl = document.getElementById('dash-greeting');
+    if (greetEl) greetEl.textContent = `${greet}, ${user?.displayName?.split(' ')[0] ?? 'Student'} 👋`;
+
+    // Stats
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    set('dash-xp',        formatXP(xp));
+    set('dash-accuracy',  analytics.totalQuestionsAttempted > 0 ? `${accuracy}%` : '—');
+    set('dash-streak',    streak);
+    set('dash-questions', formatNumber(analytics.totalQuestionsAttempted));
+    set('dash-level',     `Lv. ${lp.level}`);
+    set('dash-level-badge', `Lv. ${lp.level}`);
+    set('dash-level-subtitle', `${lp.current} / ${lp.ceil === Infinity ? '∞' : lp.ceil} XP`);
+    set('dash-xp-floor',  `${lp.floor} XP`);
+    set('dash-xp-ceil',   lp.ceil === Infinity ? 'MAX' : `${lp.ceil} XP`);
+
+    const barEl = document.getElementById('dash-level-bar');
+    if (barEl) barEl.style.width = `${Math.round(lp.progress * 100)}%`;
+
+    // Achievements
+    const listEl = document.getElementById('dash-achievements-list');
+    if (listEl) {
+      const recent = getAchievementsWithStatus().filter(a => a.unlocked).slice(-3).reverse();
+      if (recent.length === 0) return;
+      listEl.innerHTML = recent.map(a => `
+        <div class="achievement-card" style="margin-bottom: var(--space-3)">
+          <div class="achievement-icon">${a.icon}</div>
+          <div>
+            <div style="font-weight:600; font-size:0.875rem">${a.title}</div>
+            <div style="font-size:0.75rem; color:var(--clr-text-muted)">${a.description}</div>
+          </div>
+          <span class="badge badge-success" style="margin-left:auto">+${a.xpReward} XP</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  state.subscribe('xp',          renderDashboard);
+  state.subscribe('streak',      renderDashboard);
+  state.subscribe('analytics',   renderDashboard);
+  state.subscribe('achievements',renderDashboard);
+  renderDashboard();
+</script>

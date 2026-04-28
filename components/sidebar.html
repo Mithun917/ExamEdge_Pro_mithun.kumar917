@@ -1,0 +1,114 @@
+<!-- components/sidebar.html -->
+<nav class="sidebar" id="sidebar" role="navigation" aria-label="Sidebar navigation">
+
+  <div class="sidebar__nav">
+
+    <!-- Core -->
+    <span class="sidebar__section-label">Overview</span>
+
+    <a class="nav-link" data-route="#dashboard" href="#dashboard" title="Dashboard">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </span>
+      <span>Dashboard</span>
+    </a>
+
+    <!-- Study -->
+    <span class="sidebar__section-label" style="margin-top: var(--space-3)">Study</span>
+
+    <a class="nav-link" data-route="#practice" href="#practice" title="Practice">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </span>
+      <span>Practice</span>
+    </a>
+
+    <a class="nav-link" data-route="#mock" href="#mock" title="Mock Exam">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </span>
+      <span>Mock Exam</span>
+    </a>
+
+    <a class="nav-link" data-route="#exam" href="#exam" title="Live Exam">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </span>
+      <span>Live Exam</span>
+      <span class="nav-badge">New</span>
+    </a>
+
+    <!-- Social -->
+    <span class="sidebar__section-label" style="margin-top: var(--space-3)">Community</span>
+
+    <a class="nav-link" data-route="#leaderboard" href="#leaderboard" title="Leaderboard">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </span>
+      <span>Leaderboard</span>
+    </a>
+
+    <!-- Account -->
+    <span class="sidebar__section-label" style="margin-top: var(--space-3)">Account</span>
+
+    <a class="nav-link" data-route="#profile" href="#profile" title="Profile">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </span>
+      <span>Profile</span>
+    </a>
+
+  </div>
+
+  <!-- Sidebar footer: XP progress -->
+  <div class="sidebar__footer">
+    <div class="xp-meter" id="sidebar-xp-meter">
+      <div class="xp-meter__header">
+        <span class="xp-meter__level" id="sidebar-level">Lv. 1</span>
+        <span class="xp-meter__points" id="sidebar-xp-points">0 XP</span>
+      </div>
+      <div class="progress">
+        <div class="progress__bar" id="sidebar-xp-bar" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+</nav>
+
+<script type="module">
+  import { state }        from '../js/state.js';
+  import { getLevelProgress } from '../js/modules/xp.js';
+
+  function updateSidebarXP() {
+    const { level, progress, current, ceil } = getLevelProgress();
+    const levelEl  = document.getElementById('sidebar-level');
+    const pointsEl = document.getElementById('sidebar-xp-points');
+    const barEl    = document.getElementById('sidebar-xp-bar');
+
+    if (levelEl)  levelEl.textContent  = `Lv. ${level}`;
+    if (pointsEl) pointsEl.textContent = `${current} XP`;
+    if (barEl)    barEl.style.width    = `${Math.round(progress * 100)}%`;
+  }
+
+  state.subscribe('xp',    updateSidebarXP);
+  state.subscribe('level', updateSidebarXP);
+  updateSidebarXP();
+</script>

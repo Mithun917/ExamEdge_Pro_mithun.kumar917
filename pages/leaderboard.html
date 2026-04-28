@@ -1,0 +1,171 @@
+<!-- pages/leaderboard.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Community</div>
+    <h1 class="page-header__title">Leaderboard</h1>
+    <p class="page-header__subtitle">See how you rank among the top students on ExamEdge Pro.</p>
+  </div>
+
+  <!-- Your rank banner -->
+  <div id="my-rank-banner" class="card animate-fade-in-up delay-1"
+    style="margin-bottom:var(--space-6); border-color:rgba(108,99,255,0.3); background:rgba(108,99,255,0.06)">
+    <div class="flex items-center gap-5" style="flex-wrap:wrap">
+      <div style="font-size:2.5rem; font-weight:800; font-family:var(--font-display); color:var(--clr-accent); width:64px; text-align:center" id="my-rank-num">#—</div>
+      <div class="avatar avatar-md" id="my-rank-avatar">A</div>
+      <div style="flex:1">
+        <div style="font-weight:700" id="my-rank-name">—</div>
+        <div style="font-size:0.8125rem; color:var(--clr-text-muted)">Your current rank</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-mono); font-weight:800; font-size:1.25rem; color:var(--clr-accent-4)" id="my-rank-xp">—</div>
+        <div style="font-size:0.75rem; color:var(--clr-text-muted)">Total XP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex gap-3 items-center animate-fade-in-up delay-2" style="margin-bottom:var(--space-5); flex-wrap:wrap">
+    <div class="tab-bar" style="margin-bottom:0; border-bottom:none; gap:var(--space-2)">
+      <div class="tab-item active" data-period="all">All Time</div>
+      <div class="tab-item" data-period="month">This Month</div>
+      <div class="tab-item" data-period="week">This Week</div>
+    </div>
+    <div style="margin-left:auto">
+      <input type="search" class="form-input" id="lb-search" placeholder="Search players…"
+        style="width:220px; padding: 8px 14px; font-size:0.875rem" />
+    </div>
+  </div>
+
+  <!-- Top 3 podium -->
+  <div id="podium" class="animate-fade-in-up delay-3" style="margin-bottom:var(--space-6)">
+    <!-- Injected by JS -->
+  </div>
+
+  <!-- Full list -->
+  <div class="card animate-fade-in-up delay-4">
+    <div class="card__header">
+      <div class="card__title">Rankings</div>
+      <button class="btn btn-ghost btn-sm" id="lb-refresh-btn">↻ Refresh</button>
+    </div>
+    <div id="leaderboard-list">
+      <div class="page-loader" style="height:200px">
+        <div class="loader-ring"></div>
+        <span>Loading rankings…</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { fetchLeaderboard, getCurrentUserRank } from '../js/modules/leaderboard.js';
+  import { state }       from '../js/state.js';
+  import { formatXP, formatNumber, debounce, getUserInitials } from '../js/utils.js';
+  import { getUserInitials as getInitials } from '../js/modules/user.js';
+
+  let allEntries = [];
+
+  const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+  async function loadLeaderboard(force = false) {
+    const list = document.getElementById('leaderboard-list');
+    if (list && force) list.innerHTML = `
+      <div class="page-loader" style="height:160px"><div class="loader-ring"></div><span>Refreshing…</span></div>`;
+
+    allEntries = await fetchLeaderboard({ force });
+    renderBanner();
+    renderPodium(allEntries.slice(0, 3));
+    renderList(allEntries);
+  }
+
+  function renderBanner() {
+    const user = state.get('user');
+    const rank = getCurrentUserRank();
+    const xp   = state.get('xp');
+
+    document.getElementById('my-rank-num').textContent  = rank ? `#${rank}` : '#—';
+    document.getElementById('my-rank-name').textContent = user?.displayName ?? '—';
+    document.getElementById('my-rank-xp').textContent   = formatXP(xp);
+    const av = document.getElementById('my-rank-avatar');
+    if (av) av.textContent = getInitials();
+  }
+
+  function renderPodium(top3) {
+    const el = document.getElementById('podium');
+    if (!el || top3.length < 3) return;
+
+    const order = [top3[1], top3[0], top3[2]]; // 2nd, 1st, 3rd visually
+    const heights = ['120px', '160px', '100px'];
+    const positions = ['2nd', '1st', '3rd'];
+    const colors = ['rgba(200,200,220,0.1)', 'rgba(255,209,102,0.1)', 'rgba(205,127,50,0.1)'];
+    const borderColors = ['rgba(200,200,220,0.3)', 'rgba(255,209,102,0.4)', 'rgba(205,127,50,0.3)'];
+
+    el.style.cssText = 'display:flex; justify-content:center; align-items:flex-end; gap:var(--space-4); padding:var(--space-5) 0';
+    el.innerHTML = order.map((entry, i) => `
+      <div style="text-align:center; width:160px">
+        <div style="font-size:2rem; margin-bottom:var(--space-2)">${MEDAL[entry.rank] ?? entry.rank}</div>
+        <div class="avatar avatar-lg" style="margin:0 auto var(--space-3)">${entry.displayName.charAt(0)}</div>
+        <div style="font-weight:700; font-size:0.9375rem; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${entry.displayName}</div>
+        <div style="font-family:var(--font-mono); font-size:0.8125rem; color:var(--clr-accent-4); margin-bottom:var(--space-3)">${formatXP(entry.xp)}</div>
+        <div style="height:${heights[i]}; background:${colors[i]}; border:1px solid ${borderColors[i]}; border-radius:var(--radius-md) var(--radius-md) 0 0; display:flex; align-items:center; justify-content:center">
+          <span style="font-family:var(--font-display); font-weight:800; font-size:1.5rem; color:${i===1?'var(--clr-accent-4)':'var(--clr-text-muted)'}">${positions[i]}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderList(entries) {
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+
+    if (entries.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-state__icon">📊</div><p class="empty-state__text">No results found.</p></div>`;
+      return;
+    }
+
+    const currentUid = state.get('user')?.uid;
+    list.innerHTML = entries.map(e => `
+      <div class="leaderboard-item ${e.rank <= 3 ? `rank-${e.rank}` : ''} ${e.uid === currentUid ? 'you' : ''}"
+        style="${e.uid === currentUid ? 'border:1px solid rgba(108,99,255,0.3);border-radius:var(--radius-md);' : ''}">
+        <div class="rank-number">${e.rank <= 3 ? MEDAL[e.rank] : e.rank}</div>
+        <div class="avatar avatar-sm">${e.displayName.charAt(0)}</div>
+        <div style="flex:1; min-width:0">
+          <div style="font-weight:600; font-size:0.9375rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
+            ${e.displayName}${e.uid === currentUid ? ' <span class="badge badge-accent" style="font-size:0.6rem">YOU</span>' : ''}
+          </div>
+          <div style="font-size:0.75rem; color:var(--clr-text-muted)">Lv. ${e.level} · ${e.streak} day streak</div>
+        </div>
+        <div style="text-align:right; flex-shrink:0">
+          <div style="font-family:var(--font-mono); font-weight:700; color:var(--clr-accent-4); font-size:0.9375rem">${formatXP(e.xp)}</div>
+          <div style="font-size:0.75rem; color:var(--clr-accent-2)">${e.accuracy}% acc</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Period tabs
+  document.querySelectorAll('[data-period]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('[data-period]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // In production, re-fetch with time filter
+      renderList(allEntries);
+    });
+  });
+
+  // Search
+  document.getElementById('lb-search')?.addEventListener('input', debounce(e => {
+    const q = e.target.value.toLowerCase();
+    const filtered = q ? allEntries.filter(en => en.displayName.toLowerCase().includes(q)) : allEntries;
+    renderList(filtered);
+  }, 250));
+
+  // Refresh
+  document.getElementById('lb-refresh-btn')?.addEventListener('click', () => loadLeaderboard(true));
+
+  // State subscriptions
+  state.subscribe('xp', renderBanner);
+
+  loadLeaderboard();
+</script>

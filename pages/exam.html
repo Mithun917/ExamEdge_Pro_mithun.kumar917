@@ -1,0 +1,171 @@
+<!-- pages/exam.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Live</div>
+    <h1 class="page-header__title">Live Exam</h1>
+    <p class="page-header__subtitle">Join a scheduled live exam session using your exam code.</p>
+  </div>
+
+  <!-- Join Panel -->
+  <div id="exam-join" class="animate-fade-in-up delay-1" style="max-width: 480px">
+    <div class="card">
+      <div style="font-size:2.5rem; margin-bottom:var(--space-4); text-align:center">🎓</div>
+      <h3 class="card__title" style="text-align:center; margin-bottom:var(--space-2)">Enter Exam Code</h3>
+      <p style="text-align:center; font-size:0.875rem; color:var(--clr-text-muted); margin-bottom:var(--space-5)">
+        Your instructor will provide a unique 6-character code.
+      </p>
+
+      <div class="form-group" style="margin-bottom:var(--space-4)">
+        <input
+          type="text"
+          class="form-input"
+          id="exam-code-input"
+          placeholder="e.g. EX4821"
+          maxlength="8"
+          style="text-align:center; font-family:var(--font-mono); font-size:1.25rem; letter-spacing:0.15em; text-transform:uppercase"
+          autocomplete="off"
+        />
+      </div>
+
+      <button class="btn btn-primary btn-full" id="join-exam-btn">Join Exam →</button>
+
+      <div class="divider-text" style="margin: var(--space-5) 0">or</div>
+
+      <button class="btn btn-secondary btn-full" id="browse-exams-btn">Browse Upcoming Exams</button>
+    </div>
+  </div>
+
+  <!-- Upcoming Exams (shown after Browse click) -->
+  <div id="exam-browser" class="hidden animate-fade-in-up" style="margin-top:var(--space-6)">
+    <div class="flex justify-between items-center" style="margin-bottom:var(--space-5)">
+      <h2>Upcoming Exams</h2>
+      <button class="btn btn-ghost btn-sm" id="close-browser-btn">✕ Close</button>
+    </div>
+    <div class="grid grid-auto-fill-md" id="exam-list">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Waiting Room -->
+  <div id="exam-waiting" class="hidden" style="text-align:center; max-width:480px; margin:0 auto">
+    <div class="card animate-fade-in-up">
+      <div class="loader-ring" style="margin:var(--space-6) auto var(--space-4)"></div>
+      <h3 style="margin-bottom:var(--space-2)">Waiting for Exam to Start</h3>
+      <p style="font-size:0.875rem; color:var(--clr-text-muted); margin-bottom:var(--space-5)" id="exam-wait-msg">
+        Exam code accepted. Your exam will begin shortly.
+      </p>
+      <div class="flex gap-3 justify-center">
+        <button class="btn btn-ghost btn-sm" id="leave-waiting-btn">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info section -->
+  <div class="animate-fade-in-up delay-2" style="margin-top:var(--space-8); max-width: 760px">
+    <h2 style="margin-bottom:var(--space-5)">How Live Exams Work</h2>
+    <div class="grid grid-cols-3">
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">📋</div>
+        <h4 style="margin-bottom:var(--space-2)">Get Your Code</h4>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          Your instructor shares a unique exam code before the session.
+        </p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">⏱️</div>
+        <h4 style="margin-bottom:var(--space-2)">Timed Session</h4>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          All participants start and end at the same time. No pausing allowed.
+        </p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:2rem; margin-bottom:var(--space-3)">📊</div>
+        <h4 style="margin-bottom:var(--space-2)">Instant Results</h4>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin:0">
+          Scores and rankings are published immediately after submission.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { showToast } from '../js/utils.js';
+
+  const MOCK_EXAMS = [
+    { code: 'EX4821', title: 'General Aptitude — Series A', date: 'Tomorrow, 10:00 AM', duration: 60, seats: 42 },
+    { code: 'SC9902', title: 'Science Olympiad Mock', date: 'Fri, 3:00 PM', duration: 90, seats: 18 },
+    { code: 'MA1105', title: 'Mathematics Speed Test', date: 'Sat, 11:00 AM', duration: 30, seats: 75 },
+    { code: 'EN2203', title: 'English Proficiency Test', date: 'Sun, 2:00 PM', duration: 45, seats: 60 },
+  ];
+
+  // Validate & join exam
+  document.getElementById('join-exam-btn')?.addEventListener('click', () => {
+    const code = document.getElementById('exam-code-input')?.value?.trim().toUpperCase();
+    if (!code || code.length < 4) {
+      showToast({ title: 'Invalid code', message: 'Please enter a valid exam code.', type: 'error' });
+      return;
+    }
+    const found = MOCK_EXAMS.find(e => e.code === code);
+    if (!found) {
+      showToast({ title: 'Exam not found', message: `No exam found with code "${code}".`, type: 'warning' });
+      return;
+    }
+    joinWaitingRoom(found);
+  });
+
+  document.getElementById('exam-code-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('join-exam-btn')?.click();
+  });
+
+  // Browse upcoming
+  document.getElementById('browse-exams-btn')?.addEventListener('click', () => {
+    renderExamList();
+    document.getElementById('exam-browser').classList.remove('hidden');
+  });
+  document.getElementById('close-browser-btn')?.addEventListener('click', () => {
+    document.getElementById('exam-browser').classList.add('hidden');
+  });
+
+  function renderExamList() {
+    const list = document.getElementById('exam-list');
+    if (!list) return;
+    list.innerHTML = MOCK_EXAMS.map(e => `
+      <div class="card card-hover" style="cursor:pointer" data-code="${e.code}">
+        <div class="flex justify-between items-start" style="margin-bottom:var(--space-3)">
+          <span class="badge badge-accent" style="font-family:var(--font-mono)">${e.code}</span>
+          <span class="badge badge-neutral">${e.duration} min</span>
+        </div>
+        <h4 style="margin-bottom:var(--space-2); font-size:0.9375rem">${e.title}</h4>
+        <div class="flex justify-between items-center" style="margin-top:var(--space-3)">
+          <span style="font-size:0.8125rem; color:var(--clr-text-muted)">📅 ${e.date}</span>
+          <span style="font-size:0.8125rem; color:var(--clr-accent-2)">${e.seats} seats</span>
+        </div>
+        <button class="btn btn-primary btn-sm btn-full" style="margin-top:var(--space-4)">Join →</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('[data-code]').forEach(card => {
+      card.querySelector('button')?.addEventListener('click', () => {
+        const exam = MOCK_EXAMS.find(e => e.code === card.dataset.code);
+        if (exam) joinWaitingRoom(exam);
+      });
+    });
+  }
+
+  function joinWaitingRoom(exam) {
+    document.getElementById('exam-join').classList.add('hidden');
+    document.getElementById('exam-browser').classList.add('hidden');
+    document.getElementById('exam-waiting').classList.remove('hidden');
+    document.getElementById('exam-wait-msg').textContent =
+      `Code "${exam.code}" accepted. "${exam.title}" will begin at ${exam.date}.`;
+    showToast({ title: 'Waiting room joined!', message: exam.title, type: 'success' });
+  }
+
+  document.getElementById('leave-waiting-btn')?.addEventListener('click', () => {
+    document.getElementById('exam-waiting').classList.add('hidden');
+    document.getElementById('exam-join').classList.remove('hidden');
+  });
+</script>

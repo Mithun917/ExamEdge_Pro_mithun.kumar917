@@ -1,0 +1,268 @@
+<!-- pages/practice.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Study</div>
+    <h1 class="page-header__title">Practice Mode</h1>
+    <p class="page-header__subtitle">Sharpen your skills with focused question sets.</p>
+  </div>
+
+  <!-- Setup Panel (shown before session starts) -->
+  <div id="practice-setup" class="animate-fade-in-up delay-1">
+    <div class="grid grid-cols-2" style="max-width: 720px">
+
+      <div class="card">
+        <h3 class="card__title" style="margin-bottom: var(--space-5)">Configure Session</h3>
+
+        <div class="flex flex-col gap-4">
+          <div class="form-group">
+            <label class="form-label" for="practice-subject">Subject</label>
+            <select class="form-select" id="practice-subject">
+              <option value="">All Subjects</option>
+              <option value="general">General Knowledge</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="english">English</option>
+              <option value="reasoning">Logical Reasoning</option>
+              <option value="current">Current Affairs</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="practice-difficulty">Difficulty</label>
+            <select class="form-select" id="practice-difficulty">
+              <option value="">Mixed</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="practice-count">Number of Questions</label>
+            <select class="form-select" id="practice-count">
+              <option value="5">5 Questions</option>
+              <option value="10" selected>10 Questions</option>
+              <option value="20">20 Questions</option>
+              <option value="30">30 Questions</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="start-practice-btn" style="margin-top:var(--space-2)">
+            ▶ Start Practice
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="background: var(--clr-surface-2)">
+        <h3 class="card__title" style="margin-bottom:var(--space-4)">Your Stats</h3>
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-center">
+            <span class="text-secondary" style="font-size:0.875rem">Questions Done</span>
+            <span style="font-weight:700; font-family:var(--font-mono)" id="ps-total">0</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-secondary" style="font-size:0.875rem">Overall Accuracy</span>
+            <span style="font-weight:700; font-family:var(--font-mono); color:var(--clr-accent-2)" id="ps-accuracy">—</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-secondary" style="font-size:0.875rem">Current Streak</span>
+            <span style="font-weight:700; font-family:var(--font-mono); color:var(--clr-accent-3)" id="ps-streak">0 🔥</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-secondary" style="font-size:0.875rem">Current Level</span>
+            <span style="font-weight:700; font-family:var(--font-mono); color:var(--clr-accent)" id="ps-level">Lv. 1</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Active Practice Session (hidden initially) -->
+  <div id="practice-session" class="hidden" style="max-width: 720px">
+
+    <!-- Progress header -->
+    <div class="flex justify-between items-center animate-fade-in" style="margin-bottom:var(--space-5)">
+      <div>
+        <span style="font-size:0.875rem; color:var(--clr-text-muted)">Question </span>
+        <span style="font-weight:700; font-family:var(--font-mono)" id="q-current">1</span>
+        <span style="color:var(--clr-text-muted)"> / </span>
+        <span style="font-family:var(--font-mono); color:var(--clr-text-muted)" id="q-total">10</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="end-practice-btn">End Session</button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress" style="margin-bottom: var(--space-6)">
+      <div class="progress__bar" id="practice-progress-bar" style="width:0%"></div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="question-card animate-fade-in" id="question-card">
+      <div class="question-card__meta">
+        <span class="badge badge-neutral" id="q-subject">General</span>
+        <span class="badge" id="q-difficulty">Medium</span>
+      </div>
+      <div class="question-card__body" id="q-text">Loading question…</div>
+      <div class="options-list" id="options-list"></div>
+    </div>
+
+    <!-- Answer feedback -->
+    <div id="answer-feedback" class="card hidden animate-fade-in" style="margin-top:var(--space-4); border-color:var(--clr-border)">
+      <div style="font-weight:600; margin-bottom:var(--space-2)" id="feedback-title">Correct!</div>
+      <p style="font-size:0.9rem; margin:0" id="feedback-explanation"></p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex gap-3 justify-between" style="margin-top: var(--space-5)">
+      <div id="feedback-result" style="display:flex; align-items:center; gap:var(--space-3)"></div>
+      <button class="btn btn-primary hidden" id="next-btn">Next Question →</button>
+      <button class="btn btn-success hidden" id="finish-btn">See Results ✓</button>
+    </div>
+
+  </div>
+
+  <!-- Results (hidden initially) -->
+  <div id="practice-results" class="hidden" style="max-width:480px; text-align:center">
+    <div class="card animate-fade-in-up">
+      <div style="font-size:3rem; margin-bottom:var(--space-4)" id="results-emoji">🎉</div>
+      <h2 id="results-title" style="margin-bottom:var(--space-2)">Session Complete!</h2>
+      <div style="font-size:3rem; font-weight:800; font-family:var(--font-display); color:var(--clr-accent); margin-bottom:var(--space-3)" id="results-score">—</div>
+      <p class="text-muted" style="margin-bottom:var(--space-5)" id="results-summary">—</p>
+      <div class="flex gap-3 justify-center">
+        <button class="btn btn-secondary" id="practice-again-btn">Practice Again</button>
+        <a href="#dashboard" class="btn btn-primary">Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import {
+    startPracticeSession, submitAnswer,
+    nextQuestion, endPracticeSession, getCurrentQuestion,
+  } from '../js/modules/practice.js';
+  import { state }           from '../js/state.js';
+  import { getOverallAccuracy } from '../js/modules/analytics.js';
+
+  const CONFIG_LEVELS = { easy: 'badge-success', medium: 'badge-warning', hard: 'badge-danger' };
+
+  // Stat sidebar
+  function updateStats() {
+    const a = state.get('analytics');
+    const el = id => document.getElementById(id);
+    if (el('ps-total'))    el('ps-total').textContent    = a.totalQuestionsAttempted;
+    if (el('ps-accuracy')) el('ps-accuracy').textContent = a.totalQuestionsAttempted > 0 ? `${getOverallAccuracy()}%` : '—';
+    if (el('ps-streak'))   el('ps-streak').textContent   = `${state.get('streak')} 🔥`;
+    if (el('ps-level'))    el('ps-level').textContent    = `Lv. ${state.get('level')}`;
+  }
+  state.subscribe('analytics', updateStats);
+  updateStats();
+
+  // Start session
+  document.getElementById('start-practice-btn')?.addEventListener('click', () => {
+    const subject    = document.getElementById('practice-subject')?.value || null;
+    const difficulty = document.getElementById('practice-difficulty')?.value || null;
+    const count      = parseInt(document.getElementById('practice-count')?.value) || 10;
+
+    const session = startPracticeSession({ subject, difficulty, count });
+    if (!session) return;
+
+    document.getElementById('practice-setup').classList.add('hidden');
+    document.getElementById('practice-session').classList.remove('hidden');
+    document.getElementById('q-total').textContent = session.questions.length;
+    renderCurrentQuestion();
+  });
+
+  function renderCurrentQuestion() {
+    const session = state.get('practiceSession');
+    const q       = getCurrentQuestion();
+    if (!q) return;
+
+    const idx = session.currentIndex;
+    document.getElementById('q-current').textContent       = idx + 1;
+    document.getElementById('practice-progress-bar').style.width = `${((idx) / session.questions.length) * 100}%`;
+    document.getElementById('q-text').textContent          = q.text;
+    document.getElementById('q-subject').textContent       = q.subject ?? 'General';
+    const diffBadge = document.getElementById('q-difficulty');
+    diffBadge.textContent = q.difficulty ?? 'medium';
+    diffBadge.className   = `badge ${CONFIG_LEVELS[q.difficulty] ?? 'badge-neutral'}`;
+
+    // Reset feedback
+    document.getElementById('answer-feedback').classList.add('hidden');
+    document.getElementById('next-btn').classList.add('hidden');
+    document.getElementById('finish-btn').classList.add('hidden');
+    document.getElementById('feedback-result').innerHTML = '';
+
+    // Options
+    const optList = document.getElementById('options-list');
+    optList.innerHTML = q.options.map((opt, i) => `
+      <div class="option-item" data-index="${i}" tabindex="0" role="button">
+        <span class="option-label">${['A','B','C','D'][i]}</span>
+        <span>${opt}</span>
+      </div>
+    `).join('');
+
+    optList.querySelectorAll('.option-item').forEach(item => {
+      item.addEventListener('click', () => selectAnswer(parseInt(item.dataset.index)));
+      item.addEventListener('keydown', e => e.key === 'Enter' && selectAnswer(parseInt(item.dataset.index)));
+    });
+  }
+
+  function selectAnswer(index) {
+    // Prevent double-answering
+    if (!document.getElementById('answer-feedback').classList.contains('hidden')) return;
+
+    const q      = getCurrentQuestion();
+    const result = submitAnswer(index);
+    if (!result) return;
+
+    // Visual feedback on options
+    document.querySelectorAll('.option-item').forEach((item, i) => {
+      item.style.pointerEvents = 'none';
+      if (i === q.answer) item.classList.add('correct');
+      else if (i === index && !result.correct) item.classList.add('incorrect');
+    });
+
+    // Show explanation
+    const feedback = document.getElementById('answer-feedback');
+    feedback.classList.remove('hidden');
+    document.getElementById('feedback-title').textContent     = result.correct ? '✅ Correct!' : '❌ Incorrect';
+    document.getElementById('feedback-explanation').textContent = result.explanation;
+    feedback.style.borderColor = result.correct ? 'var(--clr-accent-2)' : 'var(--clr-accent-3)';
+
+    // Show next / finish button
+    const session = state.get('practiceSession');
+    const isLast  = session.currentIndex >= session.questions.length - 1;
+    document.getElementById('next-btn').classList.toggle('hidden', isLast);
+    document.getElementById('finish-btn').classList.toggle('hidden', !isLast);
+  }
+
+  document.getElementById('next-btn')?.addEventListener('click', () => {
+    nextQuestion();
+    renderCurrentQuestion();
+  });
+
+  document.getElementById('finish-btn')?.addEventListener('click', showResults);
+  document.getElementById('end-practice-btn')?.addEventListener('click', showResults);
+
+  function showResults() {
+    const result = endPracticeSession();
+    if (!result) return;
+
+    document.getElementById('practice-session').classList.add('hidden');
+    document.getElementById('practice-results').classList.remove('hidden');
+
+    const emoji = result.score >= 80 ? '🏆' : result.score >= 60 ? '🎉' : '📚';
+    document.getElementById('results-emoji').textContent   = emoji;
+    document.getElementById('results-score').textContent  = `${result.score}%`;
+    document.getElementById('results-summary').textContent = `${result.correct} correct out of ${result.total} questions`;
+  }
+
+  document.getElementById('practice-again-btn')?.addEventListener('click', () => {
+    document.getElementById('practice-results').classList.add('hidden');
+    document.getElementById('practice-setup').classList.remove('hidden');
+  });
+</script>

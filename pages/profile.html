@@ -1,0 +1,290 @@
+<!-- pages/profile.html -->
+<div class="page-wrapper">
+
+  <div class="page-header animate-fade-in-up">
+    <div class="page-header__eyebrow">Account</div>
+    <h1 class="page-header__title">My Profile</h1>
+    <p class="page-header__subtitle">Your stats, achievements, and milestones.</p>
+  </div>
+
+  <!-- Profile Hero -->
+  <div class="card animate-fade-in-up delay-1" style="margin-bottom:var(--space-6)">
+    <div class="flex items-center gap-5" style="flex-wrap:wrap">
+      <div class="avatar avatar-xl" id="profile-avatar" style="font-size:2rem; flex-shrink:0">A</div>
+      <div style="flex:1; min-width:200px">
+        <h2 id="profile-name" style="margin-bottom:4px">—</h2>
+        <p style="font-size:0.875rem; color:var(--clr-text-muted); margin-bottom:var(--space-3)" id="profile-email">—</p>
+        <div class="flex gap-3 flex-wrap">
+          <span class="badge badge-accent" id="profile-level">Lv. 1</span>
+          <span class="badge badge-warning" id="profile-streak">🔥 0 day streak</span>
+          <span class="badge badge-neutral" id="profile-joined">Joined —</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn btn-secondary" id="edit-profile-btn">✏️ Edit Profile</button>
+      </div>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="xp-meter" style="margin-top:var(--space-5)">
+      <div class="xp-meter__header">
+        <span class="xp-meter__level" id="profile-xp-label">0 XP</span>
+        <span class="xp-meter__points" id="profile-next-level">Next: Lv. 2</span>
+      </div>
+      <div class="progress progress-xl">
+        <div class="progress__bar progress-xp" id="profile-xp-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar animate-fade-in-up delay-2">
+    <div class="tab-item active" data-tab="stats">📊 Stats</div>
+    <div class="tab-item" data-tab="achievements">🏆 Achievements</div>
+    <div class="tab-item" data-tab="milestones">🎯 Milestones</div>
+    <div class="tab-item" data-tab="history">📋 Exam History</div>
+  </div>
+
+  <!-- Tab: Stats -->
+  <div id="tab-stats" class="animate-fade-in-up">
+    <div class="grid grid-cols-4" style="margin-bottom:var(--space-6)">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:rgba(108,99,255,0.15);color:var(--clr-accent)">📝</div>
+        <div class="stat-card__value" id="stat-total-q">0</div>
+        <div class="stat-card__label">Questions Answered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:rgba(0,229,160,0.12);color:var(--clr-accent-2)">🎯</div>
+        <div class="stat-card__value" id="stat-accuracy">—</div>
+        <div class="stat-card__label">Overall Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:rgba(255,209,102,0.12);color:var(--clr-accent-4)">🎓</div>
+        <div class="stat-card__value" id="stat-exams">0</div>
+        <div class="stat-card__label">Exams Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:rgba(255,107,107,0.12);color:var(--clr-accent-3)">⚡</div>
+        <div class="stat-card__value" id="stat-xp">0</div>
+        <div class="stat-card__label">Total XP</div>
+      </div>
+    </div>
+
+    <!-- Subject breakdown -->
+    <div class="card">
+      <div class="card__title" style="margin-bottom:var(--space-5)">Subject Performance</div>
+      <div id="subject-breakdown">
+        <div class="empty-state" style="padding:var(--space-5) 0">
+          <div class="empty-state__icon">📚</div>
+          <p class="empty-state__text">Answer questions to see your subject performance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Achievements -->
+  <div id="tab-achievements" class="hidden animate-fade-in-up">
+    <div class="grid grid-auto-fill-md" id="achievements-grid">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Tab: Milestones -->
+  <div id="tab-milestones" class="hidden animate-fade-in-up">
+    <div class="flex flex-col gap-4" id="milestones-list">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Tab: History -->
+  <div id="tab-history" class="hidden animate-fade-in-up">
+    <div class="card">
+      <div class="card__title" style="margin-bottom:var(--space-4)">Exam History</div>
+      <div id="history-table">
+        <div class="empty-state" style="padding:var(--space-6) 0">
+          <div class="empty-state__icon">📋</div>
+          <p class="empty-state__text">No exams completed yet. Take a mock exam to get started!</p>
+          <a href="#mock" class="btn btn-primary btn-sm">Take Mock Exam</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { state }             from '../js/state.js';
+  import { getLevelProgress }  from '../js/modules/xp.js';
+  import { getAchievementsWithStatus } from '../js/modules/achievements.js';
+  import { getMilestonesWithProgress } from '../js/modules/milestones.js';
+  import { getExamHistorySummary, getOverallAccuracy } from '../js/modules/analytics.js';
+  import { getUserInitials }   from '../js/modules/user.js';
+  import { formatXP, formatNumber, formatDate } from '../js/utils.js';
+
+  // ── Tabs ───────────────────────────────────────────────── //
+  document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const name = tab.dataset.tab;
+      ['stats','achievements','milestones','history'].forEach(t => {
+        document.getElementById(`tab-${t}`)?.classList.toggle('hidden', t !== name);
+      });
+      if (name === 'achievements') renderAchievements();
+      if (name === 'milestones')   renderMilestones();
+      if (name === 'history')      renderHistory();
+    });
+  });
+
+  // ── Render Profile ─────────────────────────────────────── //
+  function renderProfile() {
+    const user = state.get('user');
+    const xp   = state.get('xp');
+    const lp   = getLevelProgress();
+    const a    = state.get('analytics');
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    // Hero
+    const avatar = document.getElementById('profile-avatar');
+    if (avatar) avatar.textContent = getUserInitials();
+    set('profile-name',       user?.displayName ?? '—');
+    set('profile-email',      user?.email ?? '—');
+    set('profile-level',      `Lv. ${lp.level}`);
+    set('profile-streak',     `🔥 ${state.get('streak')} day streak`);
+    set('profile-joined',     `Joined ${user?.createdAt ? formatDate(user.createdAt, { month:'short', year:'numeric' }) : '—'}`);
+    set('profile-xp-label',   `${formatXP(xp)}`);
+    set('profile-next-level', `Next: Lv. ${lp.level + 1} — ${lp.ceil === Infinity ? 'MAX' : lp.ceil + ' XP'}`);
+    const bar = document.getElementById('profile-xp-bar');
+    if (bar) bar.style.width = `${Math.round(lp.progress * 100)}%`;
+
+    // Stats tab
+    const accuracy = getOverallAccuracy();
+    set('stat-total-q',  formatNumber(a.totalQuestionsAttempted));
+    set('stat-accuracy', a.totalQuestionsAttempted > 0 ? `${accuracy}%` : '—');
+    set('stat-exams',    a.examHistory?.length ?? 0);
+    set('stat-xp',       formatXP(xp));
+
+    renderSubjectBreakdown(a.subjectScores ?? {});
+  }
+
+  function renderSubjectBreakdown(scores) {
+    const el = document.getElementById('subject-breakdown');
+    if (!el) return;
+    const entries = Object.entries(scores);
+    if (entries.length === 0) return;
+
+    el.innerHTML = entries.map(([subj, data]) => `
+      <div style="margin-bottom:var(--space-4)">
+        <div class="flex justify-between items-center" style="margin-bottom:var(--space-2)">
+          <span style="font-size:0.875rem; font-weight:600; text-transform:capitalize">${subj}</span>
+          <span style="font-family:var(--font-mono); font-size:0.8125rem; font-weight:700;
+            color:${data.accuracy >= 70 ? 'var(--clr-accent-2)' : data.accuracy >= 50 ? 'var(--clr-accent-4)' : 'var(--clr-accent-3)'}">${data.accuracy}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress__bar" style="width:${data.accuracy}%;
+            background:${data.accuracy >= 70 ? 'var(--clr-accent-2)' : data.accuracy >= 50 ? 'var(--clr-accent-4)' : 'var(--clr-accent-3)'}"></div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--clr-text-muted); margin-top:4px">${data.correct}/${data.attempted} correct</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Achievements ───────────────────────────────────────── //
+  function renderAchievements() {
+    const grid = document.getElementById('achievements-grid');
+    if (!grid) return;
+    const all = getAchievementsWithStatus();
+    grid.innerHTML = all.map(a => `
+      <div class="achievement-card ${a.unlocked ? '' : 'locked'}">
+        <div class="achievement-icon">${a.icon}</div>
+        <div style="flex:1">
+          <div style="font-weight:600; font-size:0.875rem">${a.title}</div>
+          <div style="font-size:0.75rem; color:var(--clr-text-muted); margin-top:2px">${a.description}</div>
+          ${a.unlocked ? `<div style="font-size:0.75rem; color:var(--clr-accent-2); margin-top:4px">✅ Unlocked</div>` : ''}
+        </div>
+        <span class="badge ${a.unlocked ? 'badge-success' : 'badge-neutral'}">+${a.xpReward} XP</span>
+      </div>
+    `).join('');
+  }
+
+  // ── Milestones ─────────────────────────────────────────── //
+  function renderMilestones() {
+    const list = document.getElementById('milestones-list');
+    if (!list) return;
+    const all = getMilestonesWithProgress();
+    list.innerHTML = all.map(m => `
+      <div class="card ${m.unlocked ? '' : ''}">
+        <div class="flex items-center gap-4">
+          <div style="font-size:1.75rem; width:48px; text-align:center; flex-shrink:0">${m.icon}</div>
+          <div style="flex:1">
+            <div class="flex justify-between items-center" style="margin-bottom:var(--space-2)">
+              <span style="font-weight:600; font-size:0.9375rem">${m.label}</span>
+              <span class="badge ${m.unlocked ? 'badge-success' : 'badge-neutral'}">
+                ${m.unlocked ? '✅ Done' : `${Math.min(m.value, m.target)} / ${m.target}`}
+              </span>
+            </div>
+            <div class="progress">
+              <div class="progress__bar" style="width:${Math.round(m.progress * 100)}%;
+                background:${m.unlocked ? 'var(--clr-accent-2)' : 'linear-gradient(90deg,var(--clr-accent),var(--clr-accent-2))'}"></div>
+            </div>
+          </div>
+          <span class="badge badge-warning" style="flex-shrink:0">+${m.xp} XP</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── History ────────────────────────────────────────────── //
+  function renderHistory() {
+    const table = document.getElementById('history-table');
+    if (!table) return;
+    const { history } = getExamHistorySummary();
+    if (history.length === 0) return;
+
+    table.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%; border-collapse:collapse; font-size:0.875rem">
+          <thead>
+            <tr style="border-bottom:1px solid var(--clr-border); color:var(--clr-text-muted); text-align:left">
+              <th style="padding:var(--space-2) var(--space-3)">Date</th>
+              <th style="padding:var(--space-2) var(--space-3)">Type</th>
+              <th style="padding:var(--space-2) var(--space-3)">Questions</th>
+              <th style="padding:var(--space-2) var(--space-3)">Score</th>
+              <th style="padding:var(--space-2) var(--space-3)">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${history.slice().reverse().map(e => `
+              <tr style="border-bottom:1px solid var(--clr-border-soft)">
+                <td style="padding:var(--space-3)">${formatDate(e.date)}</td>
+                <td style="padding:var(--space-3)"><span class="badge badge-accent">${e.type}</span></td>
+                <td style="padding:var(--space-3); font-family:var(--font-mono)">${e.correct}/${e.questions}</td>
+                <td style="padding:var(--space-3); font-family:var(--font-mono); font-weight:700">${e.score}%</td>
+                <td style="padding:var(--space-3)"><span class="badge ${e.passed ? 'badge-success' : 'badge-danger'}">${e.passed ? 'Pass' : 'Fail'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // ── Edit profile modal ─────────────────────────────────── //
+  document.getElementById('edit-profile-btn')?.addEventListener('click', () => {
+    const user = state.get('user');
+    // Simple inline edit fallback (real modal via app.js in production)
+    const name = prompt('Update display name:', user?.displayName ?? '');
+    if (name && name.trim()) {
+      import('../js/modules/user.js').then(({ updateUserProfile }) => {
+        updateUserProfile({ displayName: name.trim() }).then(renderProfile);
+      });
+    }
+  });
+
+  // Init
+  state.subscribe('xp',          renderProfile);
+  state.subscribe('analytics',   renderProfile);
+  state.subscribe('achievements',renderProfile);
+  renderProfile();
+</script>
