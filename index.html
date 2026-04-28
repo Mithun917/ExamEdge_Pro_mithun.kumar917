@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ExamEdge Pro — The intelligent exam preparation platform" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+  <title>ExamEdge Pro</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body class="app-root" data-theme="dark">
+
+  <!-- App Shell -->
+  <div id="app" class="app-shell">
+
+    <!-- Navbar Mount Point -->
+    <header id="navbar-mount"></header>
+
+    <!-- Main Layout -->
+    <div class="app-body">
+      <!-- Sidebar Mount Point -->
+      <aside id="sidebar-mount"></aside>
+
+      <!-- Page Content -->
+      <main id="page-content" class="main-content" role="main">
+        <!-- Pages are injected here by the router -->
+        <div id="page-loader" class="page-loader" aria-live="polite">
+          <div class="loader-ring"></div>
+          <span>Loading ExamEdge Pro…</span>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal Mount Point -->
+    <div id="modal-mount" role="dialog" aria-modal="true" aria-hidden="true"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+  </div>
+
+  <!-- Entry Script (module) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
