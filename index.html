@@ -1,53 +1,1091 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
+  <!-- ═══════════════════════════════════════════════
+       ExamEdge Pro — index.html
+       Primary entry point & app shell
+  ════════════════════════════════════════════════ -->
+
+  <!-- Core Meta -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="ExamEdge Pro — The intelligent exam preparation platform" />
-  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
-  <title>ExamEdge Pro</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <!-- Fonts -->
+  <!-- SEO -->
+  <title>ExamEdge Pro — Intelligent Exam Preparation Platform</title>
+  <meta name="description"
+    content="ExamEdge Pro is a gamified, intelligent exam preparation platform. Practice questions, take mock tests, track XP, earn achievements, and climb the leaderboard." />
+  <meta name="keywords"
+    content="exam preparation, mock test, practice questions, UPSC, SSC, banking, CAT, JEE, online test, study platform" />
+  <meta name="author" content="ExamEdge Pro" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://examedgepro.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://examedgepro.app/" />
+  <meta property="og:title"       content="ExamEdge Pro — Intelligent Exam Preparation" />
+  <meta property="og:description" content="Practice smarter, score higher. Gamified exam prep with XP, achievements, mock exams and live leaderboards." />
+  <meta property="og:image"       content="https://examedgepro.app/assets/images/og-cover.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="ExamEdge Pro" />
+  <meta name="twitter:description" content="Gamified, intelligent exam preparation platform." />
+  <meta name="twitter:image"       content="https://examedgepro.app/assets/images/og-cover.png" />
+
+  <!-- PWA / Mobile -->
+  <meta name="theme-color" content="#6c63ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ExamEdge Pro" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+
+  <!-- Preconnect fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
 
-  <!-- Stylesheets -->
+  <!-- Project stylesheets -->
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
+
+  <style>
+    /* ─────────────────────────────────────────────────────
+       INDEX.HTML CRITICAL STYLES
+       Ambient atmosphere, dashboard widgets, and enhanced
+       component skins — all scoped so they don't break
+       the existing CSS files.
+    ───────────────────────────────────────────────────── */
+
+    /* ── Noise grain overlay ─────────────────────────── */
+    .app-root::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ── Ambient gradient blobs ──────────────────────── */
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.065;
+      animation: blobDrift 22s ease-in-out infinite alternate;
+    }
+    .bg-blob-1 { width:640px; height:640px; background:var(--clr-accent);   top:-180px; left:-120px; animation-delay:0s;   }
+    .bg-blob-2 { width:520px; height:520px; background:var(--clr-accent-2); bottom:-160px; right:-80px; animation-delay:-8s; }
+    .bg-blob-3 { width:360px; height:360px; background:var(--clr-accent-4); top:42%; left:48%;   animation-delay:-16s; }
+
+    @keyframes blobDrift {
+      0%   { transform: translate(0,0) scale(1); }
+      50%  { transform: translate(36px,-28px) scale(1.07); }
+      100% { transform: translate(-18px,22px) scale(0.94); }
+    }
+
+    /* App shell sits above blobs */
+    .app-shell { position: relative; z-index: 1; }
+
+    /* ── Navbar — glass effect ───────────────────────── */
+    .navbar {
+      background: rgba(10,11,15,0.82);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+    [data-theme="light"] .navbar {
+      background: rgba(244,244,248,0.88);
+    }
+
+    /* Brand icon glow on hover */
+    .navbar__brand-icon { position:relative; overflow:visible; }
+    .navbar__brand-icon::after {
+      content:'';
+      position:absolute; inset:-5px;
+      border-radius:calc(var(--radius-sm) + 5px);
+      background:linear-gradient(135deg,var(--clr-accent),var(--clr-accent-2));
+      opacity:0; z-index:-1;
+      filter:blur(10px);
+      transition:opacity 0.3s;
+    }
+    .navbar__brand:hover .navbar__brand-icon::after { opacity:0.55; }
+
+    /* Search keyboard shortcut badge */
+    .search-kbd {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      background:var(--clr-surface-3); border:1px solid var(--clr-border);
+      border-radius:4px; padding:2px 7px;
+      font-size:0.6875rem; font-family:var(--font-mono);
+      color:var(--clr-text-muted); pointer-events:none;
+    }
+
+    /* ── Sidebar — glass + active indicator bar ──────── */
+    .sidebar {
+      background: rgba(17,18,24,0.96);
+      backdrop-filter: blur(16px);
+    }
+    [data-theme="light"] .sidebar { background:rgba(255,255,255,0.97); }
+
+    .nav-link .nav-icon svg { transition:transform var(--transition); }
+    .nav-link:hover .nav-icon svg { transform:scale(1.15); }
+
+    .nav-link.active { position:relative; }
+    .nav-link.active::before {
+      content:'';
+      position:absolute; left:-4px; top:22%; bottom:22%;
+      width:3px;
+      background:var(--clr-accent);
+      border-radius:2px;
+      box-shadow:0 0 8px var(--clr-accent);
+    }
+
+    /* ── Stat card hover lift ────────────────────────── */
+    .stat-card {
+      cursor:default;
+      transition:transform 0.25s var(--ease-spring), box-shadow 0.25s;
+    }
+    .stat-card:hover {
+      transform:translateY(-4px);
+      box-shadow:0 14px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    /* Per-card accent color driven by CSS variable */
+    .stat-card { --ca: var(--clr-accent); }
+    .stat-card::before { background: var(--ca); }
+
+    /* ── Quick-start cards ───────────────────────────── */
+    .qs-card {
+      background:var(--clr-surface);
+      border:1px solid var(--clr-border);
+      border-radius:var(--radius-xl);
+      padding:var(--space-5);
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      gap:var(--space-3);
+      position:relative;
+      overflow:hidden;
+      transition:transform 0.25s var(--ease-spring), border-color 0.2s, box-shadow 0.25s;
+    }
+    .qs-card:hover {
+      transform:translateY(-5px) scale(1.01);
+      box-shadow:0 18px 52px rgba(0,0,0,0.45);
+    }
+    .qs-card::before {
+      content:'';
+      position:absolute; inset:0;
+      background:var(--qs-gradient,transparent);
+      opacity:0; transition:opacity 0.3s;
+    }
+    .qs-card:hover::before { opacity:1; }
+
+    .qs-icon {
+      width:52px; height:52px;
+      border-radius:var(--radius-lg);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.5rem;
+    }
+    .qs-title {
+      font-family:var(--font-display);
+      font-size:1.0625rem; font-weight:700;
+      color:var(--clr-text-primary);
+      letter-spacing:-0.02em;
+    }
+    .qs-desc {
+      font-size:0.8125rem; color:var(--clr-text-muted);
+      line-height:1.6; flex:1; margin:0;
+    }
+    .qs-cta {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:0.8125rem; font-weight:700;
+      margin-top:var(--space-2);
+    }
+    .qs-cta svg { transition:transform 0.2s var(--ease-spring); }
+    .qs-card:hover .qs-cta svg { transform:translateX(5px); }
+
+    /* ── Subject bar rows ────────────────────────────── */
+    .subj-row {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:var(--space-3) 0;
+      border-bottom:1px solid var(--clr-border-soft);
+    }
+    .subj-row:last-child { border-bottom:none; }
+    .subj-icon {
+      width:32px; height:32px; border-radius:var(--radius-sm);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.9rem; flex-shrink:0;
+    }
+    .subj-bar-track {
+      flex:1; height:5px;
+      background:var(--clr-surface-3);
+      border-radius:var(--radius-full); overflow:hidden;
+    }
+    .subj-bar-fill {
+      height:100%; border-radius:var(--radius-full);
+      transition:width 1.2s var(--ease-out);
+    }
+
+    /* ── Heatmap cells ───────────────────────────────── */
+    .hm-cell {
+      width:11px; height:11px;
+      border-radius:3px;
+      background:var(--clr-surface-3);
+      transition:background 0.15s, transform 0.15s;
+      cursor:default;
+      flex-shrink:0;
+    }
+    .hm-cell:hover { transform:scale(1.45); z-index:2; position:relative; }
+    .hm-cell[data-l="1"] { background:rgba(108,99,255,0.22); }
+    .hm-cell[data-l="2"] { background:rgba(108,99,255,0.48); }
+    .hm-cell[data-l="3"] { background:rgba(108,99,255,0.72); }
+    .hm-cell[data-l="4"] { background:var(--clr-accent); box-shadow:0 0 5px rgba(108,99,255,0.5); }
+
+    /* ── Weekly mini-bar ─────────────────────────────── */
+    .wk-day { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .wk-bar {
+      width:22px; border-radius:4px 4px 0 0;
+      min-height:4px;
+      transition:height 0.7s var(--ease-out);
+    }
+    .wk-label { font-size:0.625rem; color:var(--clr-text-muted); font-family:var(--font-mono); }
+
+    /* ── Progress ring ───────────────────────────────── */
+    .ring-track { stroke:var(--clr-surface-3); }
+    .ring-fill {
+      stroke:var(--clr-accent); stroke-linecap:round;
+      transform-origin:50% 50%; transform:rotate(-90deg);
+      transition:stroke-dashoffset 1.3s var(--ease-out);
+      filter:drop-shadow(0 0 5px rgba(108,99,255,0.45));
+    }
+
+    /* ── Leaderboard rows ────────────────────────────── */
+    .lb-row {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:var(--space-2) var(--space-3);
+      border-radius:var(--radius-md);
+      transition:background 0.15s;
+    }
+    .lb-row:hover { background:var(--clr-surface-2); }
+    .lb-row.lb-you { background:rgba(108,99,255,0.07); border:1px solid rgba(108,99,255,0.2); }
+    .lb-rank { width:26px; text-align:center; font-family:var(--font-mono); font-weight:800; font-size:0.8125rem; flex-shrink:0; }
+
+    /* ── Notification dot ────────────────────────────── */
+    .notif-wrap { position:relative; }
+    .notif-wrap::after {
+      content:'';
+      position:absolute; top:6px; right:6px;
+      width:7px; height:7px;
+      background:var(--clr-accent-3);
+      border-radius:50%;
+      border:2px solid var(--clr-bg);
+      animation:dotPulse 2s ease infinite;
+    }
+    @keyframes dotPulse {
+      0%,100% { transform:scale(1); opacity:1; }
+      50%      { transform:scale(1.45); opacity:0.65; }
+    }
+
+    /* ── Mobile sidebar overlay ──────────────────────── */
+    #sidebar-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.55);
+      z-index:calc(var(--z-sidebar) - 1);
+      backdrop-filter:blur(3px);
+    }
+    #mobile-menu-btn { display:none; }
+    @media (max-width:768px) {
+      #mobile-menu-btn { display:flex; }
+      .navbar__center  { display:none; }
+    }
+
+    /* ── Skeleton shimmer ────────────────────────────── */
+    .skeleton {
+      background:linear-gradient(90deg, var(--clr-surface-2) 25%, var(--clr-surface-3) 50%, var(--clr-surface-2) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.6s ease-in-out infinite;
+      border-radius:var(--radius-sm);
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── Staggered page entry ────────────────────────── */
+    .dash-section { animation:fadeInUp 0.45s var(--ease-out) both; }
+    .dash-section:nth-child(1) { animation-delay:0.00s; }
+    .dash-section:nth-child(2) { animation-delay:0.07s; }
+    .dash-section:nth-child(3) { animation-delay:0.14s; }
+    .dash-section:nth-child(4) { animation-delay:0.21s; }
+    .dash-section:nth-child(5) { animation-delay:0.28s; }
+  </style>
 </head>
+
 <body class="app-root" data-theme="dark">
 
-  <!-- App Shell -->
-  <div id="app" class="app-shell">
-
-    <!-- Navbar Mount Point -->
-    <header id="navbar-mount"></header>
-
-    <!-- Main Layout -->
-    <div class="app-body">
-      <!-- Sidebar Mount Point -->
-      <aside id="sidebar-mount"></aside>
-
-      <!-- Page Content -->
-      <main id="page-content" class="main-content" role="main">
-        <!-- Pages are injected here by the router -->
-        <div id="page-loader" class="page-loader" aria-live="polite">
-          <div class="loader-ring"></div>
-          <span>Loading ExamEdge Pro…</span>
-        </div>
-      </main>
-    </div>
-
-    <!-- Modal Mount Point -->
-    <div id="modal-mount" role="dialog" aria-modal="true" aria-hidden="true"></div>
-
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+  <!-- Ambient blobs -->
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
   </div>
 
-  <!-- Entry Script (module) -->
+  <!-- ══════════════ APP SHELL ══════════════════════════ -->
+  <div id="app" class="app-shell">
+
+    <!-- ─── NAVBAR ──────────────────────────────────── -->
+    <header role="banner">
+      <nav class="navbar" role="navigation" aria-label="Main navigation">
+
+        <!-- Hamburger (mobile) -->
+        <button class="btn btn-ghost btn-icon" id="mobile-menu-btn"
+          aria-label="Open sidebar" aria-expanded="false" aria-controls="sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+
+        <!-- Brand -->
+        <a class="navbar__brand" href="#dashboard" aria-label="ExamEdge Pro home">
+          <div class="navbar__brand-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          ExamEdge <span class="text-accent">Pro</span>
+        </a>
+
+        <!-- Global search -->
+        <div class="navbar__center">
+          <div class="navbar__search" role="search">
+            <svg class="navbar__search-icon" width="15" height="15"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="search" class="navbar__search-input" id="global-search"
+              placeholder="Search topics, questions, exams…"
+              aria-label="Global search" autocomplete="off" spellcheck="false" />
+            <span class="search-kbd" aria-hidden="true">⌘K</span>
+          </div>
+        </div>
+
+        <!-- Right controls -->
+        <div class="navbar__end">
+
+          <!-- XP badge -->
+          <div class="navbar__xp-badge" id="navbar-xp" title="Your XP" role="status" aria-label="XP">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--clr-accent-4)" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            <span id="navbar-xp-val" style="color:var(--clr-accent-4)">0 XP</span>
+          </div>
+
+          <!-- Streak badge -->
+          <div class="navbar__xp-badge" id="navbar-streak" title="Day streak" role="status"
+            style="color:var(--clr-accent-3)" aria-label="Study streak">
+            🔥 <span id="navbar-streak-val">0</span>
+          </div>
+
+          <!-- Theme toggle -->
+          <button class="btn btn-ghost btn-icon" id="theme-btn"
+            aria-label="Toggle theme" title="Switch theme">
+            <svg id="i-sun" width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41
+                       M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+            <svg id="i-moon" width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              aria-hidden="true" style="display:none">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
+          <!-- Notifications -->
+          <div class="notif-wrap">
+            <button class="btn btn-ghost btn-icon" id="notif-btn"
+              aria-label="Notifications — 3 unread">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Divider -->
+          <div style="width:1px; height:22px; background:var(--clr-border); flex-shrink:0"
+            aria-hidden="true"></div>
+
+          <!-- Avatar + name -->
+          <a href="#profile" class="flex items-center gap-2"
+            style="text-decoration:none" aria-label="Your profile">
+            <div class="avatar avatar-sm" id="navbar-avatar"
+              style="background:linear-gradient(135deg,#6c63ff,#00e5a0); flex-shrink:0"
+              aria-hidden="true">A</div>
+            <span id="navbar-uname"
+              style="font-size:0.8125rem; font-weight:600; color:var(--clr-text-secondary);
+                     max-width:88px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis">
+              Arjun
+            </span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ─── BODY ─────────────────────────────────────── -->
+    <div class="app-body">
+
+      <!-- ─── SIDEBAR ────────────────────────────────── -->
+      <aside id="sidebar" class="sidebar" role="complementary"
+        aria-label="Sidebar navigation">
+        <nav class="sidebar__nav">
+
+          <span class="sidebar__section-label">Overview</span>
+
+          <a class="nav-link active" data-route="#dashboard" href="#dashboard">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </span>
+            <span>Dashboard</span>
+          </a>
+
+          <span class="sidebar__section-label" style="margin-top:var(--space-4)">Study</span>
+
+          <a class="nav-link" data-route="#practice" href="#practice">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </span>
+            <span>Practice</span>
+          </a>
+
+          <a class="nav-link" data-route="#mock" href="#mock">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </span>
+            <span>Mock Exam</span>
+          </a>
+
+          <a class="nav-link" data-route="#exam" href="#exam">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </span>
+            <span>Live Exam</span>
+            <span class="nav-badge">New</span>
+          </a>
+
+          <span class="sidebar__section-label" style="margin-top:var(--space-4)">Community</span>
+
+          <a class="nav-link" data-route="#leaderboard" href="#leaderboard">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </span>
+            <span>Leaderboard</span>
+          </a>
+
+          <span class="sidebar__section-label" style="margin-top:var(--space-4)">Account</span>
+
+          <a class="nav-link" data-route="#profile" href="#profile">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <span>Profile</span>
+          </a>
+
+          <div class="divider" style="margin:var(--space-3) 0"></div>
+
+          <a class="nav-link" href="#settings" style="color:var(--clr-text-muted)">
+            <span class="nav-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83
+                  2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0
+                  0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0
+                  0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2
+                  0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0
+                  0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0
+                  4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2
+                  0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0
+                  1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1
+                  1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0
+                  0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0
+                  1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0
+                  0-1.51 1z"/>
+              </svg>
+            </span>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <!-- Sidebar footer XP meter -->
+        <div class="sidebar__footer">
+          <div class="xp-meter">
+            <div class="xp-meter__header">
+              <span class="xp-meter__level" id="sb-level">Lv. 1</span>
+              <span class="xp-meter__points" id="sb-xp">0 XP</span>
+            </div>
+            <div class="progress" style="margin-top:6px">
+              <div class="progress__bar" id="sb-bar" style="width:0%"></div>
+            </div>
+            <div style="font-size:0.6875rem; color:var(--clr-text-muted); margin-top:5px"
+              id="sb-next">Next level in 100 XP</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ─── MAIN CONTENT ────────────────────────────── -->
+      <main id="page-content" class="main-content" role="main"
+        aria-live="polite" aria-atomic="false">
+
+        <!-- ══════════════════════════════════════════════
+             DASHBOARD — rendered inline (no fetch needed)
+        ═════════════════════════════════════════════════ -->
+        <div class="page-wrapper" id="dashboard-view">
+
+          <!-- Header -->
+          <header class="page-header dash-section">
+            <p class="page-header__eyebrow">Overview</p>
+            <h1 class="page-header__title" id="dash-greeting">Good morning, Arjun 👋</h1>
+            <p class="page-header__subtitle">
+              You're on a <strong style="color:var(--clr-accent-3)">5-day streak</strong> —
+              keep the momentum going!
+            </p>
+          </header>
+
+          <!-- ── Stat cards ──────────────────────────── -->
+          <section class="dash-section" aria-label="Study statistics">
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-5)">
+
+              <div class="stat-card" style="--ca:var(--clr-accent)">
+                <div class="stat-card__icon"
+                  style="background:rgba(108,99,255,0.15); color:var(--clr-accent)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value" id="sc-xp">9,800</div>
+                <div class="stat-card__label">Total XP Earned</div>
+                <span class="stat-card__change positive">Lv. 8 ↑</span>
+              </div>
+
+              <div class="stat-card" style="--ca:var(--clr-accent-2)">
+                <div class="stat-card__icon"
+                  style="background:rgba(0,229,160,0.12); color:var(--clr-accent-2)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value" id="sc-acc">88%</div>
+                <div class="stat-card__label">Overall Accuracy</div>
+                <span class="stat-card__change positive">+3% this week</span>
+              </div>
+
+              <div class="stat-card" style="--ca:var(--clr-accent-3)">
+                <div class="stat-card__icon"
+                  style="background:rgba(255,107,107,0.12); color:var(--clr-accent-3); font-size:1.25rem">
+                  🔥
+                </div>
+                <div class="stat-card__value" id="sc-streak">5</div>
+                <div class="stat-card__label">Day Streak</div>
+                <span class="stat-card__change positive">Best: 14 days</span>
+              </div>
+
+              <div class="stat-card" style="--ca:var(--clr-accent-4)">
+                <div class="stat-card__icon"
+                  style="background:rgba(255,209,102,0.12); color:var(--clr-accent-4)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+                <div class="stat-card__value" id="sc-qs">1,240</div>
+                <div class="stat-card__label">Questions Answered</div>
+                <span class="stat-card__change positive">+45 today</span>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ── Quick Start + Level Ring ─────────────── -->
+          <section class="dash-section" aria-label="Quick actions">
+            <div style="display:grid; grid-template-columns:1fr 200px; gap:var(--space-5); align-items:start">
+
+              <div>
+                <h2 style="font-size:1.125rem; margin-bottom:var(--space-4)">Quick Start</h2>
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-4)">
+
+                  <a href="#practice" class="qs-card"
+                    style="--qs-gradient:linear-gradient(135deg,rgba(108,99,255,0.1),transparent); border-color:transparent">
+                    <div class="qs-icon" style="background:rgba(108,99,255,0.15)">✏️</div>
+                    <div class="qs-title">Practice</div>
+                    <p class="qs-desc">Drill questions by subject and difficulty at your own pace.</p>
+                    <div class="qs-cta" style="color:var(--clr-accent)">
+                      Start now
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                  </a>
+
+                  <a href="#mock" class="qs-card"
+                    style="--qs-gradient:linear-gradient(135deg,rgba(255,209,102,0.08),transparent); border-color:transparent">
+                    <div class="qs-icon" style="background:rgba(255,209,102,0.14)">⏱️</div>
+                    <div class="qs-title">Mock Exam</div>
+                    <p class="qs-desc">Full-length timed simulation to test your exam readiness.</p>
+                    <div class="qs-cta" style="color:var(--clr-accent-4)">
+                      Simulate
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                  </a>
+
+                  <a href="#leaderboard" class="qs-card"
+                    style="--qs-gradient:linear-gradient(135deg,rgba(0,229,160,0.07),transparent); border-color:transparent">
+                    <div class="qs-icon" style="background:rgba(0,229,160,0.12)">🏆</div>
+                    <div class="qs-title">Leaderboard</div>
+                    <p class="qs-desc">See where you rank among the best students this week.</p>
+                    <div class="qs-cta" style="color:var(--clr-accent-2)">
+                      Compete
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                  </a>
+
+                </div>
+              </div>
+
+              <!-- Level ring -->
+              <div class="card" style="padding:var(--space-5); text-align:center">
+                <div style="position:relative; width:120px; height:120px; margin:0 auto var(--space-3)">
+                  <svg width="120" height="120" viewBox="0 0 120 120" aria-label="Level progress ring">
+                    <circle class="ring-track" cx="60" cy="60" r="50" fill="none" stroke-width="8"/>
+                    <circle class="ring-fill"  id="level-ring" cx="60" cy="60" r="50"
+                      fill="none" stroke-width="8"
+                      stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+                  </svg>
+                  <div style="position:absolute; inset:0; display:flex; flex-direction:column;
+                    align-items:center; justify-content:center">
+                    <span style="font-size:0.625rem; text-transform:uppercase; letter-spacing:0.1em;
+                      color:var(--clr-text-muted); font-weight:600">Level</span>
+                    <span style="font-family:var(--font-display); font-size:2.25rem;
+                      font-weight:800; color:var(--clr-accent); line-height:1"
+                      id="ring-level">8</span>
+                  </div>
+                </div>
+                <div style="font-size:0.8125rem; font-weight:600; color:var(--clr-text-primary); margin-bottom:2px">
+                  <span id="ring-xp">9,800</span> XP
+                </div>
+                <div style="font-size:0.75rem; color:var(--clr-text-muted); margin-bottom:var(--space-3)">
+                  Next: <span id="ring-next">10,200</span> XP
+                </div>
+                <div class="progress">
+                  <div class="progress__bar" id="ring-bar" style="width:0%"></div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ── Analytics Row ─────────────────────────── -->
+          <section class="dash-section" aria-label="Performance analytics">
+            <div style="display:grid; grid-template-columns:1.2fr 1.6fr 1fr; gap:var(--space-5)">
+
+              <!-- Subject accuracy -->
+              <div class="card">
+                <div class="card__header">
+                  <div>
+                    <div class="card__title">Subject Accuracy</div>
+                    <div class="card__subtitle">Last 30 days</div>
+                  </div>
+                  <a href="#profile" class="btn btn-ghost btn-xs">View all →</a>
+                </div>
+
+                <div class="subj-row">
+                  <div class="subj-icon" style="background:rgba(108,99,255,0.15); color:var(--clr-accent)">📐</div>
+                  <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                      <span style="font-size:0.8125rem; font-weight:600">Mathematics</span>
+                      <span style="font-size:0.8125rem; font-family:var(--font-mono); color:var(--clr-accent)">92%</span>
+                    </div>
+                    <div class="subj-bar-track"><div class="subj-bar-fill" id="bar-math" style="width:0%; background:var(--clr-accent)"></div></div>
+                  </div>
+                </div>
+
+                <div class="subj-row">
+                  <div class="subj-icon" style="background:rgba(0,229,160,0.12); color:var(--clr-accent-2)">🔬</div>
+                  <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                      <span style="font-size:0.8125rem; font-weight:600">Science</span>
+                      <span style="font-size:0.8125rem; font-family:var(--font-mono); color:var(--clr-accent-2)">85%</span>
+                    </div>
+                    <div class="subj-bar-track"><div class="subj-bar-fill" id="bar-sci" style="width:0%; background:var(--clr-accent-2)"></div></div>
+                  </div>
+                </div>
+
+                <div class="subj-row">
+                  <div class="subj-icon" style="background:rgba(255,209,102,0.12); color:var(--clr-accent-4)">🌐</div>
+                  <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                      <span style="font-size:0.8125rem; font-weight:600">General Knowledge</span>
+                      <span style="font-size:0.8125rem; font-family:var(--font-mono); color:var(--clr-accent-4)">78%</span>
+                    </div>
+                    <div class="subj-bar-track"><div class="subj-bar-fill" id="bar-gk" style="width:0%; background:var(--clr-accent-4)"></div></div>
+                  </div>
+                </div>
+
+                <div class="subj-row">
+                  <div class="subj-icon" style="background:rgba(255,107,107,0.12); color:var(--clr-accent-3)">🧩</div>
+                  <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                      <span style="font-size:0.8125rem; font-weight:600">Reasoning</span>
+                      <span style="font-size:0.8125rem; font-family:var(--font-mono); color:var(--clr-accent-3)">63%</span>
+                    </div>
+                    <div class="subj-bar-track"><div class="subj-bar-fill" id="bar-rea" style="width:0%; background:var(--clr-accent-3)"></div></div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Activity heatmap + weekly bars -->
+              <div class="card">
+                <div class="card__header">
+                  <div>
+                    <div class="card__title">Study Activity</div>
+                    <div class="card__subtitle">Questions answered per day</div>
+                  </div>
+                  <span class="badge badge-success">🔥 5-day streak</span>
+                </div>
+
+                <!-- Weekly bars -->
+                <div style="display:flex; gap:5px; align-items:flex-end; margin-bottom:var(--space-5)"
+                  id="weekly-bars" aria-label="This week's activity"></div>
+
+                <!-- Heatmap -->
+                <div id="heatmap" style="display:flex; gap:3px; flex-wrap:wrap"
+                  aria-label="Activity heatmap, past 70 days"></div>
+
+                <div style="display:flex; justify-content:space-between; margin-top:var(--space-3)">
+                  <span style="font-size:0.6875rem; color:var(--clr-text-muted)">10 weeks ago</span>
+                  <div style="display:flex; align-items:center; gap:4px">
+                    <span style="font-size:0.6875rem; color:var(--clr-text-muted)">Less</span>
+                    <div style="width:10px;height:10px;border-radius:2px;background:var(--clr-surface-3)"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:rgba(108,99,255,0.4)"></div>
+                    <div style="width:10px;height:10px;border-radius:2px;background:var(--clr-accent)"></div>
+                    <span style="font-size:0.6875rem; color:var(--clr-text-muted)">More</span>
+                  </div>
+                  <span style="font-size:0.6875rem; color:var(--clr-text-muted)">Today</span>
+                </div>
+              </div>
+
+              <!-- Leaderboard preview -->
+              <div class="card" style="display:flex; flex-direction:column">
+                <div class="card__header">
+                  <div class="card__title">Top Ranks</div>
+                  <a href="#leaderboard" class="btn btn-ghost btn-xs">Full →</a>
+                </div>
+                <div id="lb-preview" style="flex:1; display:flex; flex-direction:column; gap:2px"></div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ── Recent achievements strip ─────────────── -->
+          <section class="dash-section" aria-label="Recent achievements">
+            <div class="card">
+              <div class="card__header">
+                <div class="card__title">Recent Achievements</div>
+                <a href="#profile" class="btn btn-ghost btn-xs">View all →</a>
+              </div>
+              <div style="display:flex; gap:var(--space-4); flex-wrap:wrap" id="ach-strip">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /dashboard-view -->
+
+        <!-- Page loader (shown during SPA navigation) -->
+        <div id="page-loader" class="page-loader hidden"
+          aria-live="polite" aria-busy="true" aria-label="Loading page">
+          <div class="loader-ring"></div>
+          <span>Loading…</span>
+        </div>
+
+      </main>
+    </div><!-- /app-body -->
+
+    <!-- Modal mount -->
+    <div id="modal-mount" role="dialog" aria-modal="true"
+      aria-hidden="true" aria-label="Dialog"></div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container"
+      role="status" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Mobile sidebar overlay -->
+    <div id="sidebar-overlay" aria-hidden="true"></div>
+
+  </div><!-- /app -->
+
+  <!-- ══════════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════════ -->
+
+  <!-- Inline critical JS — runs before module parse so the
+       page is interactive immediately, no flash. -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── 1. Theme restore ──────────────────────────── */
+    var savedTheme = localStorage.getItem('ee_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    function syncThemeIcons(t) {
+      var sun  = document.getElementById('i-sun');
+      var moon = document.getElementById('i-moon');
+      if (sun)  sun.style.display  = t === 'dark'  ? '' : 'none';
+      if (moon) moon.style.display = t === 'light' ? '' : 'none';
+    }
+    syncThemeIcons(savedTheme);
+
+    document.getElementById('theme-btn')?.addEventListener('click', function () {
+      var cur  = document.documentElement.getAttribute('data-theme') || 'dark';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('ee_theme', next);
+      syncThemeIcons(next);
+    });
+
+    /* ── 2. Greeting ────────────────────────────────── */
+    var greetEl = document.getElementById('dash-greeting');
+    if (greetEl) {
+      var h     = new Date().getHours();
+      var part  = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+      var user  = {};
+      try { user = JSON.parse(localStorage.getItem('ee_user') || '{}'); } catch(e){}
+      var firstName = (user.displayName || 'Arjun').split(' ')[0];
+      greetEl.textContent = 'Good ' + part + ', ' + firstName + ' \uD83D\uDC4B';
+    }
+
+    /* ── 3. Restore XP / streak from state ─────────── */
+    var xp     = 0; var streak = 0;
+    try {
+      xp     = JSON.parse(localStorage.getItem('ee_xp')     || '0');
+      streak = JSON.parse(localStorage.getItem('ee_streak') || '0');
+    } catch(e) {}
+
+    function fmtXP(n) {
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M XP';
+      if (n >= 1000)    return (n/1000).toFixed(1) + 'K XP';
+      return n + ' XP';
+    }
+    var xpEl = document.getElementById('navbar-xp-val');
+    var stEl = document.getElementById('navbar-streak-val');
+    if (xpEl) xpEl.textContent = fmtXP(xp);
+    if (stEl) stEl.textContent = streak;
+
+    var sbLevel = document.getElementById('sb-level');
+    var sbXP    = document.getElementById('sb-xp');
+    var sbBar   = document.getElementById('sb-bar');
+    var sbNext  = document.getElementById('sb-next');
+
+    var LEVELS = [0,100,250,500,900,1400,2100,3000,4200,5800,8000,11000,15000,20000];
+    function xpToLevel(x) {
+      var lv = 1;
+      for (var i = 0; i < LEVELS.length; i++) { if (x >= LEVELS[i]) lv = i + 1; }
+      return lv;
+    }
+    var lv    = xpToLevel(xp);
+    var floor = LEVELS[lv - 1] || 0;
+    var ceil  = LEVELS[lv] || (floor + 500);
+    var pct   = Math.round(Math.min(1, (xp - floor) / (ceil - floor)) * 100);
+
+    if (sbLevel) sbLevel.textContent = 'Lv. ' + lv;
+    if (sbXP)    sbXP.textContent    = fmtXP(xp);
+    if (sbBar)   sbBar.style.width   = pct + '%';
+    if (sbNext)  sbNext.textContent  = 'Next level in ' + Math.max(0, ceil - xp) + ' XP';
+
+    /* ── 4. Mobile sidebar toggle ───────────────────── */
+    var sidebar  = document.getElementById('sidebar');
+    var overlay  = document.getElementById('sidebar-overlay');
+    var menuBtn  = document.getElementById('mobile-menu-btn');
+
+    function openSidebar()  {
+      sidebar?.classList.add('mobile-open');
+      if (overlay) overlay.style.display = 'block';
+      menuBtn?.setAttribute('aria-expanded','true');
+    }
+    function closeSidebar() {
+      sidebar?.classList.remove('mobile-open');
+      if (overlay) overlay.style.display = 'none';
+      menuBtn?.setAttribute('aria-expanded','false');
+    }
+    menuBtn?.addEventListener('click', function () {
+      sidebar?.classList.contains('mobile-open') ? closeSidebar() : openSidebar();
+    });
+    overlay?.addEventListener('click', closeSidebar);
+
+    /* ── 5. Nav active state ────────────────────────── */
+    function syncNav() {
+      var hash = location.hash || '#dashboard';
+      document.querySelectorAll('.nav-link[data-route]').forEach(function (l) {
+        l.classList.toggle('active', l.dataset.route === hash);
+      });
+    }
+    window.addEventListener('hashchange', syncNav);
+    syncNav();
+
+    /* ── 6. Weekly bar chart ────────────────────────── */
+    var weeklyEl = document.getElementById('weekly-bars');
+    if (weeklyEl) {
+      var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      var vals = [32, 18, 45, 55, 40, 0, 0];
+      var maxV = Math.max.apply(null, vals);
+      weeklyEl.innerHTML = days.map(function (d, i) {
+        var h   = vals[i] > 0 ? Math.max(8, Math.round((vals[i] / maxV) * 80)) : 4;
+        var clr = vals[i] > 0
+          ? 'background:linear-gradient(180deg,var(--clr-accent),var(--clr-accent-2))'
+          : 'background:var(--clr-surface-3)';
+        return '<div class="wk-day"><div class="wk-bar" style="height:' + h + 'px;' + clr
+          + '" title="' + vals[i] + ' questions on ' + d + '"></div>'
+          + '<span class="wk-label">' + d + '</span></div>';
+      }).join('');
+    }
+
+    /* ── 7. Heatmap ─────────────────────────────────── */
+    var hmEl = document.getElementById('heatmap');
+    if (hmEl) {
+      var today  = new Date();
+      var cells  = [];
+      for (var i = 69; i >= 0; i--) {
+        var d = new Date(today);
+        d.setDate(today.getDate() - i);
+        var level = i < 5  ? 4
+                  : i < 15 ? (Math.random() > 0.3 ? Math.floor(Math.random() * 3) + 2 : 0)
+                  :           (Math.random() > 0.45 ? Math.floor(Math.random() * 4) : 0);
+        var label = d.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+        cells.push('<div class="hm-cell" data-l="' + level
+          + '" title="' + label + ' — activity ' + level + '" role="img" aria-label="Day ' + label + ', activity level ' + level + '"></div>');
+      }
+      hmEl.innerHTML = cells.join('');
+    }
+
+    /* ── 8. Leaderboard preview ─────────────────────── */
+    var lbEl = document.getElementById('lb-preview');
+    if (lbEl) {
+      var entries = [
+        { r:1, n:'Priya Nair',   xp:'12.4K', s:21, you:false },
+        { r:2, n:'Arjun Sharma', xp:'9.8K',  s:5,  you:true  },
+        { r:3, n:'Rahul Verma',  xp:'8.2K',  s:9,  you:false },
+        { r:4, n:'Sneha Patel',  xp:'7.6K',  s:6,  you:false },
+        { r:5, n:'Karan Mehta',  xp:'6.9K',  s:11, you:false },
+      ];
+      var medals = { 1:'🥇', 2:'🥈', 3:'🥉' };
+      lbEl.innerHTML = entries.map(function (e) {
+        return '<div class="lb-row ' + (e.you ? 'lb-you' : '') + '">'
+          + '<span class="lb-rank" style="color:' + (e.r <= 3 ? 'var(--clr-accent-4)' : 'var(--clr-text-muted)') + '">'
+          + (medals[e.r] || e.r) + '</span>'
+          + '<div class="avatar avatar-xs" style="background:linear-gradient(135deg,var(--clr-accent),var(--clr-accent-2));font-size:0.5rem;flex-shrink:0">' + e.n.charAt(0) + '</div>'
+          + '<div style="flex:1;min-width:0;overflow:hidden">'
+          + '<div style="font-size:0.8125rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+          + e.n + (e.you ? ' <span style="font-size:0.55rem;background:var(--clr-accent);color:#fff;padding:1px 5px;border-radius:4px;margin-left:3px;vertical-align:middle">YOU</span>' : '')
+          + '</div>'
+          + '<div style="font-size:0.6875rem;color:var(--clr-text-muted)">🔥 ' + e.s + 'd</div></div>'
+          + '<span style="font-family:var(--font-mono);font-size:0.75rem;font-weight:700;color:var(--clr-accent-4);flex-shrink:0">' + e.xp + '</span></div>';
+      }).join('');
+    }
+
+    /* ── 9. Achievements strip ──────────────────────── */
+    var achEl = document.getElementById('ach-strip');
+    if (achEl) {
+      var achs = [
+        { icon:'🌱', title:'First Step',     desc:'Answer your first question', unlocked:true  },
+        { icon:'🔥', title:'Getting Warmed', desc:'Answer 10 questions',        unlocked:true  },
+        { icon:'📅', title:'On a Roll',       desc:'3-day study streak',         unlocked:true  },
+        { icon:'💯', title:'Perfectionist',   desc:'Score 100% on a session',    unlocked:false },
+        { icon:'⭐', title:'Rising Star',     desc:'Reach Level 5',              unlocked:false },
+      ];
+      achEl.innerHTML = achs.map(function (a) {
+        return '<div class="achievement-card ' + (a.unlocked ? '' : 'locked') + '" style="min-width:200px;flex:1">'
+          + '<div class="achievement-icon">' + a.icon + '</div>'
+          + '<div><div style="font-weight:600;font-size:0.875rem">' + a.title + '</div>'
+          + '<div style="font-size:0.75rem;color:var(--clr-text-muted);margin-top:2px">' + a.desc + '</div>'
+          + (a.unlocked ? '<div style="font-size:0.6875rem;color:var(--clr-accent-2);margin-top:4px">✅ Unlocked</div>' : '')
+          + '</div></div>';
+      }).join('');
+    }
+
+    /* ── 10. Animate level ring & bars after paint ── */
+    requestAnimationFrame(function () {
+      setTimeout(function () {
+        // Level ring
+        var ring = document.getElementById('level-ring');
+        if (ring) {
+          var progress = 0.65;
+          var circ     = 2 * Math.PI * 50;
+          ring.style.strokeDashoffset = circ * (1 - progress);
+        }
+        // Subject bars
+        var bars = { 'bar-math':92, 'bar-sci':85, 'bar-gk':78, 'bar-rea':63 };
+        Object.keys(bars).forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.style.width = bars[id] + '%';
+        });
+        // XP ring bar
+        var rBar = document.getElementById('ring-bar');
+        if (rBar) rBar.style.width = '65%';
+      }, 350);
+    });
+
+    /* ── 11. Keyboard shortcut: ⌘K focuses search ── */
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('global-search')?.focus();
+      }
+    });
+
+  })();
+  </script>
+
+  <!-- Modular app (router, modules, Firebase) -->
   <script type="module" src="js/app.js"></script>
+
 </body>
 </html>
